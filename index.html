@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>IPTV Player (Stabil)</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body { background:#111; color:#fff; text-align:center; font-family: Arial, sans-serif; }
+    video { width:80%; max-width:800px; margin-top:20px; }
+    select { margin-top:10px; width:60%; padding:6px; border-radius:6px; border:none; }
+    button { margin-top:8px; padding:6px 12px; border:none; border-radius:6px; background:#28a745; color:#fff; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2>IPTV Player | Maç TV</h2>
+
+  <video id="video" controls autoplay></video>
+  
+  <select id="iptvList" onchange="loadSelected()">
+    <option value="http://paspasvip.kurulum.at.eu.org:2052/live/xb4e8Cc44W/442h244sEA/194175.m3u8">Bein Sports 1</option>
+    <option value="http://paspasvip.kurulum.at.eu.org:2052/live/xb4e8Cc44W/442h244sEA/194177.m3u8">Bein Sports 2</option>
+    <option value="http://favoritest25.shop:8080/live/brk0352/34de03a556d66c75/196217.m3u8">Bein Sports 3</option>
+    <option value="http://tvmerkezi4.org:8080/live/gunes-46/RNQ6TfmhnXbj/291.m3u8">Bein Sports 4</option>
+    <option value="https://cdn-8878.varplaycdn.cfd/605/index.m3u8">Bein Sports 5</option>
+  </select>
+
+  <script>
+    let hls;
+
+    function loadSelected() {
+      const select = document.getElementById('iptvList');
+      const url = select.value;
+      const video = document.getElementById('video');
+
+      // Var olan Hls instance'ını temizle
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          maxBufferLength: 90,        // güvenli buffer
+          maxMaxBufferLength: 180,    
+          liveSyncDuration: 20,        
+          enableWorker: true,
+          lowLatencyMode: false       // stabil
+        });
+
+        hls.loadSource(url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play().catch(err => console.log("Autoplay hatası:", err));
+        });
+
+        // Basit hata yönetimi
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              hls.startLoad();
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              hls.recoverMediaError();
+            } else {
+              hls.destroy();
+            }
+          }
+        });
+
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+      } else {
+        alert("Tarayıcınız HLS desteklemiyor.");
+      }
+    }
+
+    window.onload = function() {
+      loadSelected();
+    };
+  </script>
+</body>
+</html>
