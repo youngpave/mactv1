@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaçTV</title>
+    <title>MaçTV - Full Liste</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
         body { margin: 0; background: #0f172a; color: white; font-family: sans-serif; }
-        .header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; font-size: 20px; color: #3b82f6; }
-        .player-box { width: 100%; max-width: 800px; margin: 0 auto; background: #000; }
+        .header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; font-size: 20px; color: #3b82f6; border-bottom: 2px solid #3b82f6; }
+        .player-box { width: 100%; max-width: 900px; margin: 0 auto; background: #000; position: sticky; top: 0; z-index: 100; }
         .video-js { width: 100%; aspect-ratio: 16/9; }
         .list-container { padding: 15px; }
         .channel-item { 
             background: #1e293b; padding: 15px; margin-bottom: 8px; 
-            border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between;
+            border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .live-label { color: #ef4444; font-weight: bold; font-size: 12px; }
+        .channel-item:active { background: #334155; }
+        .ch-info { display: flex; align-items: center; gap: 10px; }
+        .play-icon { background: #8b5cf6; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .live-label { background: #ef4444; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -26,55 +30,71 @@
     <video id="my-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
 </div>
 
-<div class="list-container" id="channel-list">
-    </div>
+<div class="list-container" id="channel-list"></div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 
 <script>
-    // 1. Kanallar ve Proxyler
     var proxies = [
         "https://hlsmm-ffff.hf.space/proxy/m3u?url=",
         "https://hlsmm-lah.hf.space/proxy/m3u?url="
     ];
 
+    // SENİN TAM LİSTEN BURADA
     var myChannels = [
         { n: "BEIN SPORTS 1", u: "http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
+        { n: "BEIN SPORTS 1 YEDEK", u: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinz.m3u8" },
+        { n: "BEIN SPORTS 2", u: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb2.m3u8" },
+        { n: "BEIN SPORTS 2 YEDEK", u: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsports-2/playlist.m3u8" },
         { n: "BEIN SPORTS 3", u: "http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
+        { n: "BEIN SPORTS 3 YEDEK", u: "https://andro.0638527.xyz/checklist/androstreamlivebirazb3.m3u8" },
+        { n: "BEIN SPORTS 4", u: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb4.m3u8" },
+        { n: "BEIN SPORTS 4 YEDEK", u: "https://andro.0638527.xyz/checklist/androstreamlivebirazb4.m3u8" },
+        { n: "BEIN SPORTS 5", u: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb5.m3u8" },
+        { n: "BEIN SPORTS MAX 1", u: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-1/playlist.m3u8" },
+        { n: "BEIN SPORTS MAX 2", u: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
+        { n: "S SPORT", u: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xssport/playlist.m3u8" },
+        { n: "S SPORT Yedek", u: "https://andro.0638527.xyz/checklist/androstreamlivebirazss1.m3u8" },
+        { n: "S SPORT 2", u: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xssport2/playlist.m3u8" },
         { n: "TV8.5", u: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-        { n: "TRT 1", u: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
-        { n: "TABİİ SPOR", u: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" }
+        { n: "TRT 1 (CANLI)", u: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
+        { n: "TRT 1 yurt dışı", u: "https://wild-credit-2cd4.gamzeerdemmilf.workers.dev/https://corestream.ronaldovurdu.help//hls/trt1.m3u8" },
+        { n: "TABİİ SPOR", u: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" },
+        { n: "TABİİ SPOR 1", u: "https://pz4qt7nw1mr9sh2vl5xk8jg3y.medya.trt.com.tr/master_1440p.m3u8" },
+        { n: "TABİİ SPOR 2", u: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
+        { n: "TABİİ SPOR 3", u: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
+        { n: "TABİİ SPOR 4", u: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
+        { n: "TABİİ SPOR 5", u: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
+        { n: "TABİİ SPOR 6", u: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
+        { n: "TABİİ SPOR 7", u: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" }
     ];
 
-    // 2. Oynatıcıyı Hazırla
     var player = videojs('my-player');
 
-    // 3. Oynatma Fonksiyonu
     function playNow(name, url) {
         var finalUrl = url;
+        // İsim kontrolü (Büyük-küçük harf duyarsız)
+        var upperName = name.toUpperCase();
         
-        // Sadece bu iki kanal için proxy
-        if (name === "BEIN SPORTS 1" || name === "BEIN SPORTS 3") {
+        if (upperName === "BEIN SPORTS 1" || upperName === "BEIN SPORTS 3") {
             var randomP = proxies[Math.floor(Math.random() * proxies.length)];
             finalUrl = randomP + encodeURIComponent(url);
+            console.log("Proxy Aktif: " + randomP);
         }
 
         player.src({ src: finalUrl, type: 'application/x-mpegURL' });
         player.play();
-        window.scrollTo(0,0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 4. Listeyi Ekrana Bas (Eski usul for döngüsü - en güvenlisi)
     var listEl = document.getElementById('channel-list');
     for (var i = 0; i < myChannels.length; i++) {
         (function(index) {
             var ch = myChannels[index];
             var div = document.createElement('div');
             div.className = 'channel-item';
-            div.innerHTML = '<span>▶ ' + ch.n + '</span><span class="live-label">CANLI</span>';
-            div.onclick = function() {
-                playNow(ch.n, ch.u);
-            };
+            div.innerHTML = '<div class="ch-info"><div class="play-icon">▶</div><span>' + ch.n + '</span></div><div class="live-label">CANLI</div>';
+            div.onclick = function() { playNow(ch.n, ch.u); };
             listEl.appendChild(div);
         })(i);
     }
