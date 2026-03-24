@@ -1,114 +1,22 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaçTV - Canlı Yayın</title>
-    
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-    <style>
-        :root { 
-            --bg-dark: #0f172a; 
-            --card-bg: #1e293b; 
-            --accent-blue: #3b82f6; 
-            --live-red: #ef4444; 
-            --icon-purple: #8b5cf6;
-        }
-        
-        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', Roboto, sans-serif; }
-        
-        /* HEADER - BİREBİR GÖRSELDEKİ GİBİ */
-        header { 
-            display: flex; align-items: center; gap: 12px; padding: 15px 20px; 
-            background: var(--bg-dark); border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 18px; }
-        .site-title { color: var(--accent-blue); font-size: 20px; font-weight: bold; }
-
-        /* PLAYER ALANI VE YENİLEME BUTONU */
-        .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; }
-        .video-js { width: 100%; aspect-ratio: 16/9; }
-        
-        .refresh-btn {
-            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);
-            padding: 10px 20px; border-radius: 30px; font-size: 13px; z-index: 10;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        /* CANLI VE HD ETİKETLERİ */
-        .overlay-tags {
-            position: absolute; bottom: 55px; left: 20px; display: flex; align-items: center; gap: 15px; 
-            z-index: 10; pointer-events: none; font-weight: bold;
-        }
-        .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 14px; }
-        .pulse-dot { width: 10px; height: 10px; background: var(--live-red); border-radius: 50%; animation: pulse 1s infinite; }
-        .hd-label { font-size: 18px; opacity: 0.9; letter-spacing: 1px; }
-
-        /* KANAL LİSTESİ BAŞLIĞI */
-        .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
-        .ch-count { font-size: 14px; opacity: 0.5; font-weight: normal; }
-
-        /* KİBAR KANAL KARTLARI */
-        .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
-        .channel-card {
-            background: var(--card-bg); padding: 14px 18px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: 0.2s ease; border: 1px solid rgba(255,255,255,0.03);
-        }
-        .channel-card:active { transform: scale(0.97); background: #2d3a4f; }
-        .ch-details { display: flex; align-items: center; gap: 15px; }
-        .play-btn-icon { 
-            background: var(--icon-purple); width: 38px; height: 38px; border-radius: 10px; 
-            display: flex; align-items: center; justify-content: center; font-size: 14px;
-            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
-        }
-        .ch-title { font-size: 16px; font-weight: 600; }
-        .live-pill { background: var(--live-red); color: white; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; }
-
-        @keyframes pulse { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="logo-box">MT</div>
-    <div class="site-title">MaçTV</div>
-</header>
-
-<div class="player-section">
-    <div class="refresh-btn" onclick="location.reload();">
-        🔄 Yayın Açılmıyorsa Butona Tıkla
-    </div>
-    <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
-    <div class="overlay-tags">
-        <div class="live-indicator"><div class="pulse-dot"></div> CANLI</div>
-        <div class="hd-label">HD</div>
-    </div>
-</div>
-
-<div class="list-header">
-    7/24 Kanallar <span class="ch-count" id="count"></span>
-</div>
-
-<div class="channels-wrapper" id="list">
-    </div>
-
-<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
+    // --- 1. AYARLAR: PROXY VE KANAL LİSTESİ ---
+    const proxyHavuzu = [
+        "https://hlsmm-ffff.hf.space/proxy/m3u?url=",
+        "https://hlsmm-lah.hf.space/proxy/m3u?url="
+    ];
+
     const channels = [
-        { name: "BEIN SPORTS 1", url: "https://hlsmm-ffff.hf.space/proxy/m3u?url=http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
-        { name: "BEIN SPORTS 1 YEDEK", url:  "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinz.m3u8" },
+        { name: "BEIN SPORTS 1", url: "http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
+        { name: "BEIN SPORTS 1 YEDEK", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinz.m3u8" },
         { name: "BEIN SPORTS 2", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb2.m3u8" },
         { name: "BEIN SPORTS 2 YEDEK", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsports-2/playlist.m3u8" },
-        { name: "BEIN SPORTS 3", url: "https://Hlsmm-lah.hf.space/proxy/m3u?url=http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
+        { name: "BEIN SPORTS 3", url: "http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
         { name: "BEIN SPORTS 3 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivebirazb3.m3u8" },
         { name: "BEIN SPORTS 4", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb4.m3u8" },
         { name: "BEIN SPORTS 4 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivebirazb4.m3u8" },
         { name: "BEIN SPORTS 5", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb5.m3u8" },
         { name: "BEIN SPORTS MAX 1", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-1/playlist.m3u8" },
-        { name: "BEIN SPORTS MAX 2", url:  "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
+        { name: "BEIN SPORTS MAX 2", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
         { name: "S SPORT", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xssport/playlist.m3u8" },
         { name: "S SPORT Yedek", url: "https://andro.0638527.xyz/checklist/androstreamlivebirazss1.m3u8" },
         { name: "S SPORT 2", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xssport2/playlist.m3u8" },
@@ -129,7 +37,33 @@
     const listDiv = document.getElementById('list');
     document.getElementById('count').innerText = `${channels.length} kanal`;
 
+    // --- 2. AKILLI OYNATMA FONKSİYONU ---
+    function yayinOynat(chIsmi, asilUrl) {
+        let finalLink = "";
+
+        // Büyük-küçük harf hatası olmaması için ismi büyüterek kontrol ediyoruz
+        const kontrolIsmi = chIsmi.toUpperCase();
+
+        if (kontrolIsmi === "BEIN SPORTS 1" || kontrolIsmi === "BEIN SPORTS 3") {
+            // Yazı-Tura: Rastgele proxy seç
+            const rastgeleProxy = proxyHavuzu[Math.floor(Math.random() * proxyHavuzu.length)];
+            // Linki proxy ile birleştir (encodeURIComponent ile güvenli hale getiriyoruz)
+            finalLink = rastgeleProxy + encodeURIComponent(asilUrl);
+            console.log("Kritik Kanal (Proxy): " + chIsmi + " -> " + rastgeleProxy);
+        } else {
+            // Normal Kanal: Direkt link
+            finalLink = asilUrl;
+            console.log("Normal Kanal (Direkt): " + chIsmi);
+        }
+
+        // Videoyu oynatıcıya yükle ve başlat
+        player.src({ src: finalLink, type: 'application/x-mpegURL' });
+        player.play().catch(e => console.log("Oynatma başlatılamadı:", e));
+    }
+
+    // --- 3. KANAL LİSTESİNİ OLUŞTURMA ---
     function buildChannels() {
+        listDiv.innerHTML = ""; // Listeyi temizle
         channels.forEach((ch) => {
             const card = document.createElement('div');
             card.className = 'channel-card';
@@ -141,16 +75,13 @@
                 <div class="live-pill">CANLI</div>
             `;
             card.onclick = () => {
-                player.src({ src: ch.url, type: 'application/x-mpegURL' });
-                player.play();
+                yayinOynat(ch.name, ch.url);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
             listDiv.appendChild(card);
         });
     }
 
-    // Site açıldığında kanalları listele ama videoyu başlatma
+    // Sayfa yüklendiğinde listeyi bas
     buildChannels();
 </script>
-</body>
-</html>
