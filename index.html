@@ -3,49 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaçTV - Canlı Yayın</title>
+    <title>MaçTV</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        :root { --bg-dark: #0f172a; --card-bg: #1e293b; --accent-blue: #3b82f6; --live-red: #ef4444; --icon-purple: #8b5cf6; }
-        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: sans-serif; }
-        header { display: flex; align-items: center; gap: 12px; padding: 15px 20px; background: var(--bg-dark); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; }
-        .site-title { color: var(--accent-blue); font-size: 20px; font-weight: bold; }
-        .player-section { width: 100%; max-width: 900px; margin: 0 auto; background: #000; position: relative; }
+        body { margin: 0; background: #0f172a; color: white; font-family: sans-serif; }
+        .header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; font-size: 20px; color: #3b82f6; }
+        .player-box { width: 100%; max-width: 800px; margin: 0 auto; background: #000; }
         .video-js { width: 100%; aspect-ratio: 16/9; }
-        .refresh-btn { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; font-size: 12px; z-index: 10; cursor: pointer; color: white; border: 1px solid white; }
-        .list-header { padding: 20px; font-size: 18px; font-weight: bold; }
-        .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
-        .channel-card { background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .ch-details { display: flex; align-items: center; gap: 10px; }
-        .play-btn-icon { background: var(--icon-purple); width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .live-pill { background: var(--live-red); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .list-container { padding: 15px; }
+        .channel-item { 
+            background: #1e293b; padding: 15px; margin-bottom: 8px; 
+            border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between;
+        }
+        .live-label { color: #ef4444; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo-box">MT</div>
-    <div class="site-title">MaçTV</div>
-</header>
+<div class="header">MT - MaçTV</div>
 
-<div class="player-section">
-    <div class="refresh-btn" onclick="location.reload();">🔄 Yenile</div>
-    <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+<div class="player-box">
+    <video id="my-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
 </div>
 
-<div class="list-header">7/24 Kanallar <span id="count" style="font-size: 12px; opacity: 0.5;"></span></div>
-<div class="channels-wrapper" id="list"></div>
+<div class="list-container" id="channel-list">
+    </div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+
 <script>
-    // AYARLAR
-    const proxyHavuzu = [
+    // 1. Kanallar ve Proxyler
+    var proxies = [
         "https://hlsmm-ffff.hf.space/proxy/m3u?url=",
         "https://hlsmm-lah.hf.space/proxy/m3u?url="
     ];
 
-    const channels = [
-        { name: "BEIN SPORTS 1", url: "http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
-        { name: "BEIN SPORTS 3", url: "http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
-        { name: "TV8.5", url: "
+    var myChannels = [
+        { n: "BEIN SPORTS 1", u: "http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
+        { n: "BEIN SPORTS 3", u: "http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
+        { n: "TV8.5", u: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
+        { n: "TRT 1", u: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
+        { n: "TABİİ SPOR", u: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" }
+    ];
+
+    // 2. Oynatıcıyı Hazırla
+    var player = videojs('my-player');
+
+    // 3. Oynatma Fonksiyonu
+    function playNow(name, url) {
+        var finalUrl = url;
+        
+        // Sadece bu iki kanal için proxy
+        if (name === "BEIN SPORTS 1" || name === "BEIN SPORTS 3") {
+            var randomP = proxies[Math.floor(Math.random() * proxies.length)];
+            finalUrl = randomP + encodeURIComponent(url);
+        }
+
+        player.src({ src: finalUrl, type: 'application/x-mpegURL' });
+        player.play();
+        window.scrollTo(0,0);
+    }
+
+    // 4. Listeyi Ekrana Bas (Eski usul for döngüsü - en güvenlisi)
+    var listEl = document.getElementById('channel-list');
+    for (var i = 0; i < myChannels.length; i++) {
+        (function(index) {
+            var ch = myChannels[index];
+            var div = document.createElement('div');
+            div.className = 'channel-item';
+            div.innerHTML = '<span>▶ ' + ch.n + '</span><span class="live-label">CANLI</span>';
+            div.onclick = function() {
+                playNow(ch.n, ch.u);
+            };
+            listEl.appendChild(div);
+        })(i);
+    }
+</script>
+
+</body>
+</html>
