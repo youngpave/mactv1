@@ -22,52 +22,6 @@
         .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; z-index: 10; }
         .video-js, #external-player { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
 
-        /* --- F11 / ZORLA YAN DÖNDÜRME MODU --- */
-        .fullscreen-active {
-            position: fixed !important; top: 0 !important; left: 0 !important;
-            width: 100vw !important; height: 100vh !important;
-            z-index: 99999 !important; background: #000 !important;
-            display: flex !important; align-items: center; justify-content: center;
-        }
-
-        /* Telefon DİK konumdayken videoyu 90 derece döndür */
-        @media screen and (orientation: portrait) {
-            .fullscreen-active #external-player, 
-            .fullscreen-active .video-js,
-            .fullscreen-active #vjs-box {
-                width: 100vh !important;
-                height: 100vw !important;
-                transform: rotate(90deg);
-                transform-origin: center;
-            }
-        }
-
-        /* Telefon zaten YATAY ise döndürme yapma */
-        @media screen and (orientation: landscape) {
-            .fullscreen-active #external-player, 
-            .fullscreen-active .video-js,
-            .fullscreen-active #vjs-box {
-                width: 100vw !important;
-                height: 100vh !important;
-                transform: none;
-            }
-        }
-
-        /* Kapatma Butonu (Tam ekranda videonun üzerinde kalması için ayarlandı) */
-        #close-fs {
-            display: none; position: fixed; top: 20px; left: 20px; z-index: 100000;
-            background: rgba(239, 68, 68, 0.9); color: white; border: none;
-            padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-
-        /* Tam Ekran Tetikleyici Buton */
-        #fs-trigger-btn {
-            display: none; width: calc(100% - 30px); margin: 15px auto; 
-            background: var(--accent-blue); color: white; border: none; 
-            padding: 14px; border-radius: 12px; font-weight: bold; 
-            text-align: center; cursor: pointer; font-size: 16px;
-        }
-
         .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; }
         .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
         .channel-card {
@@ -87,16 +41,12 @@
 </header>
 
 <div class="player-section" id="player-container">
-    <button id="close-fs" onclick="toggleFs(false)">✕ Kapat</button>
-    
     <div id="vjs-box" style="width:100%;">
         <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
     </div>
     
     <iframe id="external-player" src="" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen style="display:none;"></iframe>
 </div>
-
-<button id="fs-trigger-btn" onclick="toggleFs(true)">📱 iPhone Tam Ekran (YATAY)</button>
 
 <div class="list-header">Kanallar <span id="count" style="font-size:12px; opacity:0.5;"></span></div>
 <div class="channels-wrapper" id="list"></div>
@@ -106,7 +56,7 @@
     const channels = [
         { name: "BEIN SPORTS 1", url: "https://hlsmm-ffff.hf.space/proxy/m3u?url=http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
         { name: "BEIN SPORTS 1 YEDEK", url:  "https://andro.0638527.xyz/checklist/androstreamlivedebs1.m3u8" },
-        { name: "BEIN SPORTS 2", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb2.m3u8" },
+        { name: "BEIN SPORTS 2", url: "https://casivaltv.xyz/channel?id=b2", isIframe: true" },
         { name: "BEIN SPORTS 2 YEDEK", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsports-2/playlist.m3u8" },
         { name: "BEIN SPORTS 3", url: "https://curly-fire-b7a1.bestlivever.workers.dev/watch/chunk/yayinb3.m3u8" },
         { name: "BEIN SPORTS 3 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivebirazb3.m3u8" },
@@ -115,7 +65,7 @@
         { name: "BEIN SPORTS 5", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs1.m3u8" },
         { name: "BEIN SPORTS MAX 1", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-1/playlist.m3u8" },
         { name: "BEIN SPORTS MAX 2", url:  "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
-        { name: "S SPORT", url: "https://andro.0638527.xyz/checklist/androstreamlivedess1.m3u8" },
+        { name: "S SPORT", url: "https://andro.0638527.xyz/checklist/androstreamlivedess1.m3u8" },
         { name: "S SPORT 2", url: "https://andro.0638527.xyz/checklist/androstreamlivedess2.m3u8" },
         { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
         { name: "TRT 1 (CANLI)", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
@@ -135,34 +85,14 @@
     const listDiv = document.getElementById('list');
     const vjsBox = document.getElementById('vjs-box');
     const iframePlayer = document.getElementById('external-player');
-    const fsBtn = document.getElementById('fs-trigger-btn');
-    const playerContainer = document.getElementById('player-container');
-    const closeFsBtn = document.getElementById('close-fs');
-
-    function toggleFs(status) {
-        if (status) {
-            playerContainer.classList.add('fullscreen-active');
-            closeFsBtn.style.display = 'block';
-            // Adres çubuğunu biraz olsun gizlemek için hafif kaydır
-            window.scrollTo(0, 1);
-        } else {
-            playerContainer.classList.remove('fullscreen-active');
-            closeFsBtn.style.display = 'none';
-            window.scrollTo(0, 0);
-        }
-    }
 
     function loadChannel(ch) {
-        toggleFs(false);
-
         if (ch.isIframe) {
             player.pause();
             vjsBox.style.display = 'none';
             iframePlayer.style.display = 'block';
             iframePlayer.src = ch.url;
-            fsBtn.style.display = 'block';
         } else {
-            fsBtn.style.display = 'none';
             iframePlayer.style.display = 'none';
             iframePlayer.src = '';
             vjsBox.style.display = 'block';
