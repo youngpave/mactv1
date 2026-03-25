@@ -22,20 +22,42 @@
         .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; z-index: 10; }
         .video-js, #external-player { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
 
-        /* iPhone / Manuel Tam Ekran Modu Stili */
+        /* --- F11 / ZORLA YAN DÖNDÜRME MODU --- */
         .fullscreen-active {
             position: fixed !important; top: 0 !important; left: 0 !important;
             width: 100vw !important; height: 100vh !important;
             z-index: 99999 !important; background: #000 !important;
+            display: flex !important; align-items: center; justify-content: center;
         }
-        .fullscreen-active iframe, .fullscreen-active .video-js { height: 100% !important; aspect-ratio: auto !important; }
 
-        /* Kapatma Butonu (Tam ekranda çıkar) */
+        /* Telefon DİK konumdayken videoyu 90 derece döndür */
+        @media screen and (orientation: portrait) {
+            .fullscreen-active #external-player, 
+            .fullscreen-active .video-js,
+            .fullscreen-active #vjs-box {
+                width: 100vh !important;
+                height: 100vw !important;
+                transform: rotate(90deg);
+                transform-origin: center;
+            }
+        }
+
+        /* Telefon zaten YATAY ise döndürme yapma */
+        @media screen and (orientation: landscape) {
+            .fullscreen-active #external-player, 
+            .fullscreen-active .video-js,
+            .fullscreen-active #vjs-box {
+                width: 100vw !important;
+                height: 100vh !important;
+                transform: none;
+            }
+        }
+
+        /* Kapatma Butonu (Tam ekranda videonun üzerinde kalması için ayarlandı) */
         #close-fs {
-            display: none; position: fixed; top: 15px; right: 15px; z-index: 100000;
+            display: none; position: fixed; top: 20px; left: 20px; z-index: 100000;
             background: rgba(239, 68, 68, 0.9); color: white; border: none;
-            padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
 
         /* Tam Ekran Tetikleyici Buton */
@@ -53,7 +75,6 @@
             display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.03);
         }
-        .channel-card:active { transform: scale(0.97); }
         .ch-details { display: flex; align-items: center; gap: 15px; }
         .play-btn-icon { background: var(--icon-purple); width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -68,14 +89,14 @@
 <div class="player-section" id="player-container">
     <button id="close-fs" onclick="toggleFs(false)">✕ Kapat</button>
     
-    <div id="vjs-box">
+    <div id="vjs-box" style="width:100%;">
         <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
     </div>
     
     <iframe id="external-player" src="" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen style="display:none;"></iframe>
 </div>
 
-<button id="fs-trigger-btn" onclick="toggleFs(true)">📱 iPhone İçin Tam Ekran Yap</button>
+<button id="fs-trigger-btn" onclick="toggleFs(true)">📱 iPhone Tam Ekran (YATAY)</button>
 
 <div class="list-header">Kanallar <span id="count" style="font-size:12px; opacity:0.5;"></span></div>
 <div class="channels-wrapper" id="list"></div>
@@ -123,31 +144,29 @@
         if (status) {
             playerContainer.classList.add('fullscreen-active');
             closeFsBtn.style.display = 'block';
-            // Yatay çevirme uyarısı (İsteğe bağlı)
-            if(window.innerHeight > window.innerWidth) {
-                alert("Daha iyi görüntü için telefonu yan çevirin!");
-            }
+            // Adres çubuğunu biraz olsun gizlemek için hafif kaydır
+            window.scrollTo(0, 1);
         } else {
             playerContainer.classList.remove('fullscreen-active');
             closeFsBtn.style.display = 'none';
+            window.scrollTo(0, 0);
         }
     }
 
     function loadChannel(ch) {
-        toggleFs(false); // Her kanal değişiminde tam ekrandan çık
+        toggleFs(false);
 
         if (ch.isIframe) {
             player.pause();
             vjsBox.style.display = 'none';
             iframePlayer.style.display = 'block';
             iframePlayer.src = ch.url;
-            fsBtn.style.display = 'block'; // Sadece Iframe kanallarda butonu göster
+            fsBtn.style.display = 'block';
         } else {
             fsBtn.style.display = 'none';
             iframePlayer.style.display = 'none';
             iframePlayer.src = '';
             vjsBox.style.display = 'block';
-            
             player.src({ src: ch.url, type: 'application/x-mpegURL' });
             player.play();
         }
