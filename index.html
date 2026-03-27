@@ -2,163 +2,133 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaçTV - Canlı Yayın</title>
     
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
         :root { 
-            --bg-dark: #0f172a; --card-bg: #1e293b; 
-            --accent-blue: #3b82f6; --live-red: #ef4444; 
+            --bg-dark: #0f172a; 
+            --card-bg: #1e293b; 
+            --accent-blue: #3b82f6; 
+            --live-red: #ef4444; 
             --icon-purple: #8b5cf6;
         }
         
-        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
-        header { display: flex; align-items: center; gap: 12px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; }
+        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', Roboto, sans-serif; }
+        
+        header { 
+            display: flex; align-items: center; gap: 12px; padding: 15px 20px; 
+            background: var(--bg-dark); border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 18px; }
         .site-title { color: var(--accent-blue); font-size: 20px; font-weight: bold; }
 
-        /* Oynatıcı Alanı */
-        .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; z-index: 10; }
-        .video-js, #external-player { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
+        .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; }
+        .video-js { width: 100%; aspect-ratio: 16/9; }
+        
+        .refresh-btn {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);
+            padding: 10px 20px; border-radius: 30px; font-size: 13px; z-index: 10;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); color: white;
+        }
 
-        .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; }
+        .overlay-tags {
+            position: absolute; bottom: 55px; left: 20px; display: flex; align-items: center; gap: 15px; 
+            z-index: 10; pointer-events: none; font-weight: bold;
+        }
+        .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .pulse-dot { width: 10px; height: 10px; background: var(--live-red); border-radius: 50%; animation: pulse 1s infinite; }
+
+        .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
         .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
         .channel-card {
             background: var(--card-bg); padding: 14px 18px; border-radius: 12px;
             display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.03);
+            cursor: pointer; transition: 0.2s ease; border: 1px solid rgba(255,255,255,0.03);
         }
         .ch-details { display: flex; align-items: center; gap: 15px; }
-        .play-btn-icon { background: var(--icon-purple); width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .play-btn-icon { 
+            background: var(--icon-purple); width: 38px; height: 38px; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .live-pill { background: var(--live-red); color: white; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; }
+
+        @keyframes pulse { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-box">MT</div>
-    <div class="site-title">MaçTV Canlı</div>
+    <div class="site-title">MaçTV</div>
 </header>
 
-<div class="player-section" id="player-container">
-    <div id="vjs-box" style="width:100%;">
-        <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+<div class="player-section">
+    <div class="refresh-btn" onclick="location.reload();">
+        🔄 Yayın Açılmıyorsa Butona Tıkla
     </div>
-    
-    <iframe id="external-player" src="" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen style="display:none;"></iframe>
+    <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+    <div class="overlay-tags">
+        <div class="live-indicator"><div class="pulse-dot"></div> CANLI</div>
+        <div class="hd-label">HD</div>
+    </div>
 </div>
 
-<div class="list-header">Kanallar <span id="count" style="font-size:12px; opacity:0.5;"></span></div>
+<div class="list-header">
+    7/24 Kanallar <span class="ch-count" id="count"></span>
+</div>
+
 <div class="channels-wrapper" id="list"></div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
+    // 🚀 BİSMİLLAH: CORS ENGELLEYİCİ BOTU (SERVICE WORKER) UYANDIRMA KODU
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log("CORS Botu Başarıyla Uyandırıldı!"))
+                .catch(err => console.log("Bot Uyanırken Hata Oluştu:", err));
+        });
+    }
+
     const channels = [
+        // SENİN VERDİĞİN ÖZEL IPTV LİNKİ (BOT SAYESİNDE ÇALIŞACAK)
+        { name: "ÖZEL IPTV (BOTLU)", url: "http://nordsohzace.top:8080/live/8531748968927785/afb62d9c2dee/62817.m3u8" },
+        
         { name: "BEIN SPORTS 1", url: "https://hlsmm-ffff.hf.space/proxy/m3u?url=http://serelfhdtv.shop:8080/live/dg1611/8nTrqTpMsJwv/35762.m3u8" },
-
-        { name: "BEIN SPORTS 1 YEDEK", url:  "https://andro.0638527.xyz/checklist/androstreamlivedebs1.m3u8" },
-
-        { name: "BEIN SPORTS 2 ", url: "https://betmatiktv133.com/channel?id=b2", isIframe: true },
-
-        { name: "BEIN SPORTS 2 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs2.m3u8" },
-
-        { name: "BEIN SPORTS 3", url: "https://Hlsmm-ffff.hf.space/proxy/m3u?url=http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
-
-        { name: "BEIN SPORTS 3 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs3.m3u8" },
-
-        { name: "BEIN SPORTS 4", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs4.m3u8" },
- 
-        { name: "BEIN SPORTS 5", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs5.m3u8" },
-
-        { name: "BEIN SPORTS MAX 1", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-1/playlist.m3u8" },
-
-        { name: "BEIN SPORTS MAX 2", url:  "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
-
-        { name: "S SPORT", url: "https://andro.0638527.xyz/checklist/androstreamlivedess1.m3u8" },
-
-        { name: "S SPORT 2", url: "https://andro.0638527.xyz/checklist/androstreamlivedess2.m3u8" },
-
-{ name: "Tivibu Spor 1", url: "https://andro.0638527.xyz/checklist/androstreamlivedets1.m3u8" },
-
-{ name: "Tivibu Spor 2", url: "https://andro.0638527.xyz/checklist/androstreamlivedets2.m3u8" },
-
-{ name: "Tivibu Spor 3", url: "https://andro.0638527.xyz/checklist/androstreamlivedets3.m3u8" },
-
-{ name: "Tivibu Spor 4", url: "https://andro.0638527.xyz/checklist/androstreamlivedets4.m3u8" },
-
-{ name: "EXXEN 1 ", url: "https://betmatiktv133.com/channel?id=ex1", isIframe: true },
-
-        { name: "EXXEN 2 ", url: "https://betmatiktv133.com/channel?id=ex2", isIframe: true },
-
-        { name: "EXXEN 3 ", url: "https://betmatiktv133.com/channel?id=ex3", isIframe: true },
-
-        { name: "EXXEN 4 ", url: "https://betmatiktv133.com/channel?id=ex4", isIframe: true },
-
-        { name: "EXXEN 5 ", url: "https://betmatiktv133.com/channel?id=ex5", isIframe: true },
-
-        { name: "EXXEN  6", url: "https://betmatiktv133.com/channel?id=ex6", isIframe: true },
-
-        { name: "EXXEN 7 ", url: "https://betmatiktv133.com/channel?id=ex7", isIframe: true },
-
- { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
-
-        { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-
-        { name: "TRT 1 (CANLI)", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
-
-{ name: "TRT SPOR ", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-
-        { name: "TABİİ SPOR", url: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" },
-
-        { name: "TABİİ SPOR 1", url: "https://pz4qt7nw1mr9sh2vl5xk8jg3y.medya.trt.com.tr/master_1440p.m3u8" },
-
-        { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
-
-        { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
-
-        { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
-
-        { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
-
-        { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
-
-        { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" } ,
-
-  { name: "TABİİ SPOR 7", url: "https://vod3.cf.dmcdn.net/sec2(-F7AUvihqNdO0EveueZ3GhYvVv0hUV87WUi1LNIr3m1fLAZXc3XdtCnTceUHgyx2kgKZfzkdOm4gfZ4DsKCZ6rZCQ17u7cLA0PkLp8ZA_ELHnV04AtjujhZL0NOf07jRrdDXLBp5ZvVdgWbc9pNK9_VoHRB2syjhJ9tztmEqlFkcX6Y9SX4xVcuahJ3uArrXhZ5gmAiZv-w-w9ipWwzZGQ)/video/fmp4/609780570/h264_aac_hd/1/manifest.m3u8#cell=cf3" } ,
-       
-       
+        { name: "BEIN SPORTS 3", url: "https://Hlsmm-lah.hf.space/proxy/m3u?url=http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
+        { name: "S SPORT Plus", url: "https://andro.0638527.xyz/checklist/androstreamlivessplus1.m3u8" },
+        { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" }
     ];
 
     const player = videojs('main-player', { fluid: true });
     const listDiv = document.getElementById('list');
-    const vjsBox = document.getElementById('vjs-box');
-    const iframePlayer = document.getElementById('external-player');
+    document.getElementById('count').innerText = `${channels.length} kanal`;
 
-    function loadChannel(ch) {
-        if (ch.isIframe) {
-            player.pause();
-            vjsBox.style.display = 'none';
-            iframePlayer.style.display = 'block';
-            iframePlayer.src = ch.url;
-        } else {
-            iframePlayer.style.display = 'none';
-            iframePlayer.src = '';
-            vjsBox.style.display = 'block';
-            player.src({ src: ch.url, type: 'application/x-mpegURL' });
-            player.play();
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function buildChannels() {
+        listDiv.innerHTML = "";
+        channels.forEach((ch) => {
+            const card = document.createElement('div');
+            card.className = 'channel-card';
+            card.innerHTML = `
+                <div class="ch-details">
+                    <div class="play-btn-icon">▶</div>
+                    <span class="ch-title">${ch.name}</span>
+                </div>
+                <div class="live-pill">CANLI</div>
+            `;
+            card.onclick = () => {
+                player.src({ src: ch.url, type: 'application/x-mpegURL' });
+                player.play();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            listDiv.appendChild(card);
+        });
     }
 
-    channels.forEach(ch => {
-        const card = document.createElement('div');
-        card.className = 'channel-card';
-        card.innerHTML = `<div class="ch-details"><div class="play-btn-icon">▶</div><span>${ch.name}</span></div>`;
-        card.onclick = () => loadChannel(ch);
-        listDiv.appendChild(card);
-    });
-
-    document.getElementById('count').innerText = `${channels.length} Kanal`;
+    buildChannels();
 </script>
 </body>
 </html>
