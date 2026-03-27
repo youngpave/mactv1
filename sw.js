@@ -1,15 +1,16 @@
+self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+
 self.addEventListener('fetch', (event) => {
     const url = event.request.url;
-    if (url.includes('.m3u8') || url.includes('.ts') || url.includes(':8080')) {
+    // IPTV linklerini ve portlarını (8080 vb.) yakala
+    if (url.includes('.m3u8') || url.includes('.ts') || url.includes(':')) {
         event.respondWith(
             fetch(event.request, {
                 mode: 'cors',
-                credentials: 'omit',
-                referrerPolicy: 'no-referrer',
-                headers: {
-                    'User-Agent': navigator.userAgent // Tarayıcı kimliğini gönder
-                }
+                referrerPolicy: 'no-referrer'
             }).then(response => {
+                // Tarayıcıyı kandıran başlıklar
                 const newHeaders = new Headers(response.headers);
                 newHeaders.set('Access-Control-Allow-Origin', '*');
                 newHeaders.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
@@ -20,7 +21,7 @@ self.addEventListener('fetch', (event) => {
                     statusText: response.statusText,
                     headers: newHeaders
                 });
-            })
+            }).catch(() => fetch(event.request))
         );
     }
 });
