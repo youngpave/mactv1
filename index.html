@@ -106,7 +106,151 @@
         { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
         { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
         { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
+        { name: "TABİİ SPOR 7 (Yedek)", url: "<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    <title>MaçTV - Canlı Yayın</title>
+    
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <style>
+        :root { 
+            --bg-dark: #0f172a; --card-bg: #1e293b; 
+            --accent-blue: #3b82f6; --live-red: #ef4444; 
+            --icon-purple: #8b5cf6;
+        }
+        
+        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        header { display: flex; align-items: center; gap: 12px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; }
+        .site-title { color: var(--accent-blue); font-size: 20px; font-weight: bold; }
+
+        /* Oynatıcı Alanı */
+        .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; z-index: 10; }
+        .video-js, #external-player { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
+
+        .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; }
+        .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
+        .channel-card {
+            background: var(--card-bg); padding: 14px 18px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.03);
+        }
+        .ch-details { display: flex; align-items: center; gap: 15px; }
+        .play-btn-icon { background: var(--icon-purple); width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-box">MT</div>
+    <div class="site-title">MaçTV Canlı</div>
+</header>
+
+<div class="player-section" id="player-container">
+    <div id="vjs-box" style="width:100%;">
+        <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+    </div>
+    
+    <iframe id="external-player" 
+            src="" 
+            allow="autoplay; fullscreen" 
+            allowfullscreen 
+            webkitallowfullscreen 
+            referrerpolicy="no-referrer"
+            style="display:none; width:100%; aspect-ratio:16/9; border:none;">
+    </iframe>
+</div>
+
+<div class="list-header">Kanallar <span id="count" style="font-size:12px; opacity:0.5;"></span></div>
+<div class="channels-wrapper" id="list"></div>
+
+<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+<script>
+    // 🚀 BOT KAYDI
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log("Bot Hazır!"))
+            .catch(err => console.error("Bot Hatası:", err));
+    }
+
+    const channels = [
+        { name: "BEIN SPORTS 1", url:"https://Hlsmm-ffff.hf.space/proxy/m3u?url=http://serelfhdtv.shop:8080/live/Uzagra245/VswuRDXvTJ/334642.m3u8" },
+        { name: "BEIN SPORTS 1 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs1.m3u8" },
+        { name: "BEIN SPORTS 2", url: "https://betmatiktv133.com/channel?id=b2", isIframe: true },
+        { name: "BEIN SPORTS 2 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs2.m3u8" },
+        { name: "BEIN SPORTS 3", url: "https://Hlsmm-ffff.hf.space/proxy/m3u?url=http://185.160.192.64:80/live/DAE54374785/DAR65386775/79462.m3u8" },
+        { name: "BEIN SPORTS 3 YEDEK", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs3.m3u8" },
+        { name: "BEIN SPORTS 4", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs4.m3u8" },
+        { name: "BEIN SPORTS 5", url: "https://andro.0638527.xyz/checklist/androstreamlivedebs5.m3u8" },
+        { name: "BEIN SPORTS MAX 1", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-1/playlist.m3u8" },
+        { name: "BEIN SPORTS MAX 2", url: "https://dga1op10s1u3leo.ec876fd9240622.click/live/xbeinsportsmax-2/playlist.m3u8" },
+        { name: "S SPORT", url: "https://andro.0638527.xyz/checklist/androstreamlivedess1.m3u8" },
+        { name: "S SPORT 2", url: "https://andro.0638527.xyz/checklist/androstreamlivedess2.m3u8" },
+        { name: "Tivibu Spor 1", url: "https://andro.0638527.xyz/checklist/androstreamlivedets1.m3u8" },
+        { name: "Tivibu Spor 2", url: "https://andro.0638527.xyz/checklist/androstreamlivedets2.m3u8" },
+        { name: "Tivibu Spor 3", url: "https://andro.0638527.xyz/checklist/androstreamlivedets3.m3u8" },
+        { name: "Tivibu Spor 4", url: "https://andro.0638527.xyz/checklist/androstreamlivedets4.m3u8" },
+        { name: "EXXEN 1", url: "https://betmatiktv133.com/channel?id=ex1", isIframe: true },
+        { name: "EXXEN 2", url: "https://betmatiktv133.com/channel?id=ex2", isIframe: true },
+        { name: "EXXEN 3", url: "https://betmatiktv133.com/channel?id=ex3", isIframe: true },
+        { name: "EXXEN 4", url: "https://betmatiktv133.com/channel?id=ex4", isIframe: true },
+        { name: "EXXEN 5", url: "https://betmatiktv133.com/channel?id=ex5", isIframe: true },
+        { name: "EXXEN 6", url: "https://betmatiktv133.com/channel?id=ex6", isIframe: true },
+        { name: "EXXEN 7", url: "https://betmatiktv133.com/channel?id=ex7", isIframe: true },
+        { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
+        { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
+        { name: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
+        { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
+        { name: "TABİİ SPOR", url: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" },
+        { name: "TABİİ SPOR 1", url: "https://pz4qt7nw1mr9sh2vl5xk8jg3y.medya.trt.com.tr/master_1440p.m3u8" },
+        { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
+        { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
+        { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
+        { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
+        { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
+        { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
         { name: "TABİİ SPOR 7 (Yedek)", url: "https://cdn-live.tv/api/v1/channels/player/?name=bein+sports+1&code=tr&user=cdnlivetv&plan=free", isIframe: true },
+    ];
+
+    const player = videojs('main-player', { fluid: true });
+    const listDiv = document.getElementById('list');
+    const vjsBox = document.getElementById('vjs-box');
+    const iframePlayer = document.getElementById('external-player');
+
+    function loadChannel(ch) {
+        if (ch.isIframe) {
+            player.pause();
+            vjsBox.style.display = 'none';
+            iframePlayer.style.display = 'block';
+            iframePlayer.src = ch.url;
+        } else {
+            iframePlayer.style.display = 'none';
+            iframePlayer.src = '';
+            vjsBox.style.display = 'block';
+            player.src({ src: ch.url, type: 'application/x-mpegURL' });
+            player.play();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    channels.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = 'channel-card';
+        card.innerHTML = `<div class="ch-details"><div class="play-btn-icon">▶</div><span>${ch.name}</span></div>`;
+        card.onclick = () => loadChannel(ch);
+        listDiv.appendChild(card);
+    });
+
+    document.getElementById('count').innerText = `${channels.length} Kanal`;
+</script>
+</body>
+</html>
+https://dlstreams.top/stream/stream-62.php", isIframe: true },
     ];
 
     const player = videojs('main-player', { fluid: true });
