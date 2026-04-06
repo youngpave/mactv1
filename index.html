@@ -38,7 +38,7 @@
 
 <header>
     <div class="logo-box">MT</div>
-    <div class="site-title" id="active-title">MaçTV Canlı</div>
+    <div class="site-title">MaçTV Canlı</div>
 </header>
 
 <div class="player-section" id="player-container">
@@ -61,16 +61,19 @@
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
-    // MEVCUT KANALLARIN (KORUNDU)
-    let channels = [
+    const channels = [
 
-        { name: "BEIN SPORTS 1 HD Player reklamlı ", url: "https://zonalive.click/player/33/151", isIframe: true },
+      
+{ name: "BEIN SPORTS 1 HD Player reklamlı ", url: "https://l2l2.link/ch?id=91", isIframe: true },
 
-        { name: "BEIN SPORTS 1 HD ", url: "https://abiggame.top/best/6.php", isIframe: true },
 
-        { name: "BEIN SPORTS 2 HD  ", url: "https://abiggame.top/best/13.php", isIframe: true },
+{ name: "BEIN SPORTS 1 HD ", url: "https://abiggame.top/best/17.php", isIframe: true },
 
-        { name: "BEIN SPORTS 3 HD ", url: "https://abiggame.top/best/14.php", isIframe: true },
+    
+{ name: "BEIN SPORTS 2 HD  ", url: "https://abiggame.top/best/13.php", isIframe: true },
+
+    
+{ name: "BEIN SPORTS 3 HD ", url: "https://abiggame.top/best/14.php", isIframe: true },
 
         { name: "BEIN SPORTS 4", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebs4.m3u8" },
 
@@ -80,7 +83,8 @@
 
         { name: "BEIN SPORTS MAX 2", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebm2.m3u8" },
 
-        { name: "S SPORT ", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess1.m3u8" },
+    
+       { name: "S SPORT ", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess1.m3u8" },
 
         { name: "S SPORT 2", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess2.m3u8" },
 
@@ -91,7 +95,8 @@
         { name: "Tivibu Spor 3", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets3.m3u8" },
 
         { name: "Tivibu Spor 4", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets4.m3u8" },
-        
+
+      
         { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
 
         { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
@@ -112,34 +117,25 @@
 
         { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
 
-
         { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
 
         { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
-        
-{ name: "Kapalı Kanal", url: "https://abiggame.top/best/14.php", isIframe: true },
-      
+
+                 { name: "Macaristan - Yunanistan", url: "https://daddylivestream.live/gold-39/18.php", isIframe: true },     
+
     ];
 
     const player = videojs('main-player', { fluid: true });
     const listDiv = document.getElementById('list');
     const vjsBox = document.getElementById('vjs-box');
     const iframePlayer = document.getElementById('external-player');
-    const titleHeader = document.getElementById('active-title');
-
-    let activeUrl = "";
-    let activeName = "";
 
     function loadChannel(ch) {
-        activeUrl = ch.url;
-        activeName = ch.name;
-        titleHeader.innerText = ch.name;
-
         if (ch.isIframe) {
             player.pause();
             vjsBox.style.display = 'none';
             iframePlayer.style.display = 'block';
-            if (iframePlayer.src !== ch.url) iframePlayer.src = ch.url;
+            iframePlayer.src = ch.url;
         } else {
             iframePlayer.style.display = 'none';
             iframePlayer.src = '';
@@ -150,45 +146,15 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function renderList() {
-        listDiv.innerHTML = '';
-        channels.forEach(ch => {
-            const card = document.createElement('div');
-            card.className = 'channel-card';
-            card.innerHTML = `<div class="ch-details"><div class="play-btn-icon">▶</div><span>${ch.name}</span></div>`;
-            card.onclick = () => loadChannel(ch);
-            listDiv.appendChild(card);
-        });
-        document.getElementById('count').innerText = `${channels.length} Kanal`;
-    }
+    channels.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = 'channel-card';
+        card.innerHTML = `<div class="ch-details"><div class="play-btn-icon">▶</div><span>${ch.name}</span></div>`;
+        card.onclick = () => loadChannel(ch);
+        listDiv.appendChild(card);
+    });
 
-    // --- OTOMATIK GUNCELLEME FONKSIYONU ---
-    async function checkUpdates() {
-        try {
-            // Buradaki 'kanallar.json' ismini GitHub'daki RAW linkinle değiştirebilirsin
-            const response = await fetch('kanallar.json?t=' + Date.now());
-            const newChannels = await response.json();
-            
-            channels = newChannels;
-            renderList();
-
-            // İzlenen kanalın linki değişmişse otomatik yenile
-            const currentMatch = channels.find(c => c.name === activeName);
-            if (currentMatch && currentMatch.url !== activeUrl) {
-                console.log("Link güncellendi, otomatik yükleniyor...");
-                loadChannel(currentMatch);
-            }
-        } catch (e) {
-            // Dosya yoksa veya hata verirse mevcut liste ile devam eder
-        }
-    }
-
-    // İlk kurulum
-    renderList();
-
-    // 30 saniyede bir kontrol et
-    setInterval(checkUpdates, 30000);
-
+    document.getElementById('count').innerText = `${channels.length} Kanal`;
 </script>
 </body>
 </html>
