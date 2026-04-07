@@ -61,70 +61,36 @@
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
+    // ARTIK isIframe YAZMANA GEREK YOK, SİSTEM OTOMATİK ANLIYOR
     const channels = [
-
-
-{ name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8?rel=0&showinfo=0&autoplay=1&enablejsapi=1&r=1&mobile=1&mobile=1", isIframe: true },
-      
-{ name: "BEIN SPORTS 1 HD Player reklamlı ", url: "https://l2l2.link/ch?id=91", isIframe: true },
-
-
-{ name: "BEIN SPORTS 1 HD ", url: "https://abiggame.top/best/17.php", isIframe: true },
-
-    
-{ name: "BEIN SPORTS 2 HD  ", url: "https://abiggame.top/best/13.php", isIframe: true },
-
-    
-{ name: "BEIN SPORTS 3 HD ", url: "https://abiggame.top/best/14.php", isIframe: true },
-
+        { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8?rel=0&showinfo=0&autoplay=1&enablejsapi=1&r=1&mobile=1&mobile=1" },
+        { name: "BEIN SPORTS 1 HD Player reklamlı", url: "https://l2l2.link/ch?id=91" },
+        { name: "BEIN SPORTS 1 HD", url: "https://abiggame.top/best/17.php" },
+        { name: "BEIN SPORTS 2 HD", url: "https://abiggame.top/best/13.php" },
+        { name: "BEIN SPORTS 3 HD", url: "https://abiggame.top/best/14.php" },
         { name: "BEIN SPORTS 4", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebs4.m3u8" },
-
         { name: "BEIN SPORTS 5", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebs5.m3u8" },
-
         { name: "BEIN SPORTS MAX 1", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebm1.m3u8" },
-
         { name: "BEIN SPORTS MAX 2", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedebm2.m3u8" },
-
-    
-       { name: "S SPORT ", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess1.m3u8" },
-
+        { name: "S SPORT", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess1.m3u8" },
         { name: "S SPORT 2", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedess2.m3u8" },
-
         { name: "Tivibu Spor 1", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets1.m3u8" },
-
         { name: "Tivibu Spor 2", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets2.m3u8" },
-
         { name: "Tivibu Spor 3", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets3.m3u8" },
-
         { name: "Tivibu Spor 4", url: "https://andro.kesintisiz-iptv.online/checklist/androstreamlivedets4.m3u8" },
-
-      
         { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
-
         { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-
         { name: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
-
         { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-
         { name: "TABİİ SPOR", url: "https://kl9mr2vxw7nq5py1sh4tj3gb6.medya.trt.com.tr/master_720p.m3u8" },
-
         { name: "TABİİ SPOR 1", url: "https://pz4qt7nw1mr9sh2vl5xk8jg3y.medya.trt.com.tr/master_1440p.m3u8" },
-
         { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
-
         { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
-
         { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
-
         { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
-
         { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
-
         { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
-
-                 { name: "Macaristan - Yunanistan", url: "https://daddylivestream.live/gold-39/18.php", isIframe: true },     
-
+        { name: "Macaristan - Yunanistan", url: "https://daddylivestream.live/gold-39/18.php" }
     ];
 
     const player = videojs('main-player', { fluid: true });
@@ -133,7 +99,10 @@
     const iframePlayer = document.getElementById('external-player');
 
     function loadChannel(ch) {
-        if (ch.isIframe) {
+        // OTOMATİK TESPİT: Link m3u8 veya mp4 içermiyorsa iframe olarak yükle
+        const isIframeLink = !ch.url.toLowerCase().includes('.m3u8') && !ch.url.toLowerCase().includes('.mp4');
+
+        if (isIframeLink) {
             player.pause();
             vjsBox.style.display = 'none';
             iframePlayer.style.display = 'block';
