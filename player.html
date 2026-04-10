@@ -3,126 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>beIN SPORTS | Canlı Player</title>
+    <title>MaçTV | Clappr Pro</title>
     
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-    
-    <link href="https://unpkg.com/@videojs/themes@1.0.1/dist/city/index.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr-level-selector@latest/dist/level-selector.min.js"></script>
 
     <style>
-        /* TÜM TASARIMI DEĞİŞTİREN ÖZEL CSS */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        /* Oynatıcıyı Tam Ekran Yap */
-        .video-js { width: 100vw !important; height: 100vh !important; }
+        #player { width: 100vw; height: 100vh; }
 
-        /* --- beIN TEMA ÖZELLEŞTİRMELERİ --- */
-        .video-js.vjs-theme-city { color: #fff; }
-        
-        /* Büyük Oynat Butonu (Ortadaki) */
-        .vjs-theme-city .vjs-big-play-button {
-            background-color: rgba(37, 99, 235, 0.7) !important; /* beIN Mavisi */
-            border: none !important; border-radius: 50% !important;
-            width: 70px !important; height: 70px !important;
-            line-height: 70px !important; margin-top: -35px !important; margin-left: -35px !important;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
-            transition: 0.2s;
-        }
-        .vjs-theme-city:hover .vjs-big-play-button { background-color: #2563eb !important; transform: scale(1.05); }
-
-        /* Kontrol Çubuğu Tasarımı (beIN Sade) */
-        .vjs-theme-city .vjs-control-bar {
-            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent) !important;
-            height: 45px !important; padding: 0 5px; opacity: 1 !important;
+        /* beIN SPORTS Tarzı Alt Bant Tasarımı */
+        .info-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            height: 60px; background: rgba(10, 10, 10, 0.9);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; box-sizing: border-box; z-index: 999;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none;
         }
 
-        /* İlerleme Çubuğu (beIN Mavisi) */
-        .vjs-theme-city .vjs-play-progress { background-color: #2563eb !important; }
-        .vjs-theme-city .vjs-slider { background-color: rgba(255,255,255,0.1) !important; }
-        
-        /* beIN Sade İkonlar */
-        .vjs-theme-city .vjs-button > .vjs-icon-placeholder:before { font-size: 16px !important; }
+        .info-left { display: flex; align-items: center; gap: 12px; }
+        .logo-tag { background: #fff; color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 900; font-size: 14px; }
+        .channel-name { color: #eee; font-weight: bold; font-size: 14px; letter-spacing: 0.5px; }
 
-        /* Yükleniyor Simgesi */
-        .vjs-loading-spinner { border-color: #2563eb !important; }
+        .info-right { display: flex; align-items: center; gap: 8px; }
+        .live-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 10px #ef4444; animation: blink 1.2s infinite; }
+        .live-text { color: #fff; font-weight: bold; font-size: 12px; }
 
-        /* --- ÜST GERİ DÖN NAV --- */
-        .top-nav {
-            position: absolute; top: 15px; left: 15px; z-index: 1000;
-            transition: opacity 0.3s ease; opacity: 1; /* Kontroller gizlenince bu da gizlenecek */
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* Geri Dön Butonu */
+        .back-nav { position: absolute; top: 20px; left: 20px; z-index: 1000; }
+        .back-nav a { 
+            color: white; text-decoration: none; background: rgba(255,255,255,0.1); 
+            padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: bold;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
         }
-        
-        /* Kontroller gizlendiğinde Nav'ı da gizle */
-        .vjs-user-inactive .top-nav { opacity: 0; }
 
-        .back-btn {
-            color: white; text-decoration: none; background: rgba(255,255,255,0.1);
-            padding: 8px 15px; border-radius: 20px; font-size: 12px;
-            font-weight: 600; backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.03); transition: 0.2s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
-
-        /* --- CANLI DURUM BANDI (beIN Tarzı Kırmızı Nokta) --- */
-        .live-status {
-            position: absolute; bottom: 5px; left: 10px; z-index: 1000;
-            display: flex; align-items: center; gap: 8px; pointer-events: none;
-            transition: opacity 0.3s ease; opacity: 1; /* Kontroller gizlenince bu da gizlenecek */
-        }
-        
-        /* Kontroller gizlendiğinde CANLI bandını da gizle */
-        .vjs-user-inactive .live-status { opacity: 0; }
-
-        .live-dot {
-            width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%;
-            animation: pulse 1.5s infinite; /* Yanıp sönen nokta efekti */
-        }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        
-        .live-text { color: white; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        /* Clappr Kontrollerini Özelleştirme (Mavi Tema) */
+        .clappr-controls[data-controls] .seekbar-bar { background-color: #2563eb !important; }
+        .clappr-controls[data-controls] .drawer-icon-color { fill: #2563eb !important; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav" id="top-nav-box">
-        <a href="index.html" class="back-btn">⬅ Kanallar</a>
+    <div class="back-nav"><a href="index.html">⬅ KANALLAR</a></div>
+
+    <div id="player"></div>
+
+    <div class="info-overlay">
+        <div class="info-left">
+            <div class="logo-tag">MT</div>
+            <div class="channel-name">CANLI YAYIN</div>
+        </div>
+        <div class="info-right">
+            <div class="live-dot"></div>
+            <div class="live-text">CANLI</div>
+        </div>
     </div>
 
-    <div class="live-status" id="live-status-band">
-        <div class="live-dot"></div>
-        <div class="live-text">CANLI</div>
-    </div>
-
-    <video id="p" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto" playsinline></video>
-
-    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
-        // URL'den linki al
-        const params = new URLSearchParams(window.location.search);
-        const link = params.get('stream');
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoSrc = urlParams.get('stream');
 
-        if(link) {
-            // Player'ı başlat
-            const player = videojs('p', {
-                fluid: false,
-                html5: { vhs: { overrideNative: true } } // M3U8 için en iyi uyum
-            });
-
-            // Kaynağı yükle
-            player.src({ src: link, type: 'application/x-mpegURL' });
-            
-            // Otomatik oynatmayı dene
-            player.play().catch(e => console.log("Otomatik oynatma engellendi, tıkla ve başlat."));
-
-            // Üst Navigasyonun, CANLI bandının ve Kontrollerin gizlenmesini sağla
-            player.on('userinactive', function() {
-                document.getElementById('top-nav-box').style.opacity = '0';
-                document.getElementById('live-status-band').style.opacity = '0';
-            });
-            player.on('useractive', function() {
-                document.getElementById('top-nav-box').style.opacity = '1';
-                document.getElementById('live-status-band').style.opacity = '1';
+        if (videoSrc) {
+            var player = new Clappr.Player({
+                source: videoSrc,
+                parentId: "#player",
+                plugins: [LevelSelector],
+                autoPlay: true,
+                width: '100%',
+                height: '100%',
+                preload: 'auto',
+                mimeType: "application/x-mpegURL",
+                levelSelectorConfig: {
+                    title: 'Kalite',
+                    labels: {
+                        2: 'High',
+                        1: 'Medium',
+                        0: 'Low',
+                    },
+                },
+                mediacontrol: {seekbar: "#2563eb", buttons: "#fff"},
+                playbackNotSupportedMessage: 'Yayın şu an aktif değil veya tarayıcınız desteklemiyor.',
             });
         }
     </script>
