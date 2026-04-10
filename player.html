@@ -66,4 +66,65 @@
         /* --- CANLI DURUM BANDI (beIN Tarzı Kırmızı Nokta) --- */
         .live-status {
             position: absolute; bottom: 5px; left: 10px; z-index: 1000;
-            display: flex; align-items: center; gap
+            display: flex; align-items: center; gap: 8px; pointer-events: none;
+            transition: opacity 0.3s ease; opacity: 1; /* Kontroller gizlenince bu da gizlenecek */
+        }
+        
+        /* Kontroller gizlendiğinde CANLI bandını da gizle */
+        .vjs-user-inactive .live-status { opacity: 0; }
+
+        .live-dot {
+            width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%;
+            animation: pulse 1.5s infinite; /* Yanıp sönen nokta efekti */
+        }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .live-text { color: white; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav" id="top-nav-box">
+        <a href="index.html" class="back-btn">⬅ Kanallar</a>
+    </div>
+
+    <div class="live-status" id="live-status-band">
+        <div class="live-dot"></div>
+        <div class="live-text">CANLI</div>
+    </div>
+
+    <video id="p" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto" playsinline></video>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script>
+        // URL'den linki al
+        const params = new URLSearchParams(window.location.search);
+        const link = params.get('stream');
+
+        if(link) {
+            // Player'ı başlat
+            const player = videojs('p', {
+                fluid: false,
+                html5: { vhs: { overrideNative: true } } // M3U8 için en iyi uyum
+            });
+
+            // Kaynağı yükle
+            player.src({ src: link, type: 'application/x-mpegURL' });
+            
+            // Otomatik oynatmayı dene
+            player.play().catch(e => console.log("Otomatik oynatma engellendi, tıkla ve başlat."));
+
+            // Üst Navigasyonun, CANLI bandının ve Kontrollerin gizlenmesini sağla
+            player.on('userinactive', function() {
+                document.getElementById('top-nav-box').style.opacity = '0';
+                document.getElementById('live-status-band').style.opacity = '0';
+            });
+            player.on('useractive', function() {
+                document.getElementById('top-nav-box').style.opacity = '1';
+                document.getElementById('live-status-band').style.opacity = '1';
+            });
+        }
+    </script>
+</body>
+</html>
