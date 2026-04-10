@@ -8,40 +8,46 @@
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        
         .video-js { width: 100vw !important; height: 100vh !important; }
 
-        /* ALT KONTROL BARI - Sade Siyah Bant */
+        /* ALT KONTROL BARI */
         .vjs-control-bar {
-            background: linear-gradient(transparent, rgba(0,0,0,0.8)) !important;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9)) !important;
             height: 60px !important;
             display: flex !important;
             align-items: center !important;
         }
 
-        /* KIRMIZI VİDEO ÇİZGİSİ (İlerleme Çubuğu) */
+        /* KIRMIZI VİDEO ÇİZGİSİ */
         .vjs-play-progress { background-color: #ff0000 !important; }
         .vjs-play-progress:before { color: #ff0000 !important; }
         .vjs-slider { background-color: rgba(255,255,255,0.2) !important; height: 4px !important; }
 
-        /* SADE BÜYÜTEÇ BUTONU (Tam Ekran) */
-        .vjs-fullscreen-control {
-            order: 10 !important; /* En sağa */
-            margin-right: 10px !important;
+        /* MANUEL SADE BÜYÜTEÇ BUTONU (Garantili Çözüm) */
+        .manual-fullscreen {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            z-index: 9999;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        .vjs-fullscreen-control .vjs-icon-placeholder:before {
-            font-size: 1.8em !important;
-            line-height: 60px !important;
-            color: #fff !important;
+        .manual-fullscreen svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
         }
 
-        /* SES AYARI */
-        .vjs-volume-panel {
-            order: 9 !important;
-            margin-right: 5px !important;
-        }
+        /* SES AYARI PANELİ */
+        .vjs-volume-panel { order: 8 !important; margin-left: auto !important; margin-right: 50px !important; }
 
-        /* CANLI NOKTASI VE YAZISI */
+        /* CANLI NOKTASI */
         .live-label {
             position: absolute; bottom: 20px; left: 60px;
             display: flex; align-items: center; z-index: 1000; pointer-events: none;
@@ -56,25 +62,23 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* GERİ DÖN BUTONU */
-        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 1000; transition: 0.3s; }
+        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 1000; }
         .back-nav a {
             color: white; text-decoration: none; background: rgba(0,0,0,0.3);
-            padding: 6px 12px; border-radius: 5px; font-size: 12px;
+            padding: 6px 12px; border-radius: 5px; font-size: 11px;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* ORTADAKİ BÜYÜK OYNAT BUTONU */
-        .vjs-big-play-button {
-            background-color: rgba(255, 0, 0, 0.7) !important;
-            border: none !important;
-            border-radius: 50% !important;
-            width: 70px !important; height: 70px !important;
-            line-height: 70px !important; margin-top: -35px !important; margin-left: -35px !important;
+        /* KONTROLLER GİZLENİNCE HEPSİNİ GİZLE */
+        .vjs-user-inactive .back-nav, .vjs-user-inactive .live-label, .vjs-user-inactive .manual-fullscreen { 
+            opacity: 0; visibility: hidden; transition: 0.3s; 
+        }
+        .vjs-user-active .back-nav, .vjs-user-active .live-label, .vjs-user-active .manual-fullscreen { 
+            opacity: 1; visibility: visible; transition: 0.3s; 
         }
 
-        /* KONTROLLER GİZLENİNCE GERİ BUTONUNU VE CANLI YAZISINI DA GİZLE */
-        .vjs-user-inactive .back-nav, .vjs-user-inactive .live-label { opacity: 0; }
-        .vjs-user-active .back-nav, .vjs-user-active .live-label { opacity: 1; }
+        /* Karışıklık olmasın diye orjinal tam ekran butonunu tamamen siliyoruz */
+        .vjs-fullscreen-control { display: none !important; }
     </style>
 </head>
 <body>
@@ -86,30 +90,35 @@
         <div class="live-text">CANLI</div>
     </div>
 
-    <video id="vid" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+    <div class="manual-fullscreen" id="btn-full">
+        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+    </div>
+
+    <video id="v" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
 
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
-        const streamUrl = params.get('stream');
+        const url = params.get('stream');
 
-        const player = videojs('vid', {
+        const player = videojs('v', {
             autoplay: true,
             controls: true,
-            responsive: true,
             controlBar: {
-                children: [
-                    'playToggle',
-                    'progressControl',
-                    'volumePanel',
-                    'fullscreenToggle',
-                ],
+                children: ['playToggle', 'progressControl', 'volumePanel']
             }
         });
 
-        if(streamUrl) {
-            player.src({ src: streamUrl, type: 'application/x-mpegURL' });
-        }
+        if(url) { player.src({ src: url, type: 'application/x-mpegURL' }); }
+
+        // BÜYÜTEÇ BUTONU ÇALIŞTIRMA KOMUTU
+        document.getElementById('btn-full').addEventListener('click', function() {
+            if (!player.isFullscreen()) {
+                player.requestFullscreen();
+            } else {
+                player.exitFullscreen();
+            }
+        });
     </script>
 </body>
 </html>
