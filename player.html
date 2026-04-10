@@ -6,36 +6,25 @@
     <title>Player</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@latest/dist/hlsjs-playback.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr-level-selector@latest/dist/level-selector.min.js"></script>
 
     <style>
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #000; overflow: hidden; 
-        }
-        
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
         #player { width: 100vw; height: 100vh; }
-
-        /* Geri Dön Butonu - Sadece gerekli olduğunda görünür */
-        .back-nav { 
-            position: absolute; top: 15px; left: 15px; z-index: 1000; 
-        }
+        
+        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 1000; }
         .back-nav a { 
-            color: rgba(255,255,255,0.6); text-decoration: none; 
-            background: rgba(0,0,0,0.4); padding: 5px 12px; 
-            border-radius: 5px; font-family: sans-serif; font-size: 12px;
+            color: rgba(255,255,255,0.7); text-decoration: none; 
+            background: rgba(0,0,0,0.5); padding: 6px 14px; 
+            border-radius: 4px; font-family: sans-serif; font-size: 12px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .back-nav a:hover { color: #fff; background: rgba(0,0,0,0.8); }
-
-        /* Clappr Stil Ayarları */
-        .clappr-controls[data-controls] { background: linear-gradient(transparent, rgba(0,0,0,0.7)) !important; }
     </style>
 </head>
 <body>
 
     <div class="back-nav"><a href="index.html">⬅ Geri</a></div>
-
     <div id="player"></div>
 
     <script>
@@ -46,21 +35,18 @@
             var player = new Clappr.Player({
                 source: videoSrc,
                 parentId: "#player",
-                plugins: [LevelSelector],
+                // HlsjsPlayback eklendi, siyah ekranı bu çözer
+                plugins: [HlsjsPlayback, LevelSelector],
                 autoPlay: true,
+                mute: false, // Sesli başlasın
                 width: '100%',
                 height: '100%',
-                preload: 'auto',
-                mimeType: "application/x-mpegURL",
-                levelSelectorConfig: {
-                    title: 'Kalite',
-                    labels: {
-                        2: '720p',
-                        1: '480p',
-                        0: '360p',
-                    },
+                hlsjsConfig: {
+                    enableWorker: true,
+                    lowLatencyMode: true,
                 },
-                mediacontrol: {seekbar: "#3b82f6", buttons: "#fff"},
+                mimeType: "application/x-mpegURL",
+                mediacontrol: {seekbar: "#2563eb", buttons: "#fff"},
             });
         }
     </script>
