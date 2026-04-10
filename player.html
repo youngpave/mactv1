@@ -1,113 +1,154 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Player</title>
-    
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        .video-js { width: 100vw !important; height: 100vh !important; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAÇTV | Player</title>
 
-        /* --- KONTROL BARI TASARIMI --- */
-        .vjs-control-bar {
-            background: linear-gradient(transparent, rgba(0,0,0,0.9)) !important;
-            height: 60px !important;
-            display: flex !important;
-            align-items: center !important;
-        }
+<!-- Clappr -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 
-        /* --- KIRMIZI VİDEO ÇİZGİSİ (Seek Bar) --- */
-        .vjs-play-progress { background-color: #ff0000 !important; }
-        .vjs-play-progress:before { color: #ff0000 !important; } /* Çizginin ucundaki yuvarlak */
-        .vjs-slider { background-color: rgba(255,255,255,0.2) !important; height: 4px !important; }
-        .vjs-load-progress { background: rgba(255,255,255,0.1) !important; } /* Yüklenen kısım rengi */
+<style>
+body {
+    margin:0;
+    background:black;
+    font-family:sans-serif;
+}
 
-        /* --- SADE BÜYÜTEÇ (Tam Ekran) --- */
-        .vjs-fullscreen-control { 
-            order: 10 !important; 
-            margin-right: 10px !important;
-        }
-        .vjs-fullscreen-control .vjs-icon-placeholder:before {
-            font-size: 1.8em !important;
-            line-height: 60px !important;
-            color: #fff !important;
-            content: "\f108" !important; /* VideoJS'in daha sade olan ikonu */
-        }
+/* PLAYER */
+#player {
+    width:100%;
+    height:100vh;
+}
 
-        /* --- SES AYARI --- */
-        .vjs-volume-panel { order: 9 !important; }
+/* GERİ BUTON */
+.top-nav {
+    position:absolute;
+    top:15px;
+    left:15px;
+    z-index:999;
+}
+.back-btn {
+    color:white;
+    background:rgba(0,0,0,0.5);
+    padding:8px 12px;
+    border-radius:20px;
+    text-decoration:none;
+    font-size:12px;
+}
 
-        /* --- CANLI NOKTASI --- */
-        .live-label {
-            position: absolute; bottom: 20px; left: 60px;
-            display: flex; align-items: center; z-index: 1000; pointer-events: none;
-        }
-        .dot {
-            width: 8px; height: 8px; background-color: #ff0000;
-            border-radius: 50%; margin-right: 6px; box-shadow: 0 0 8px #ff0000;
-            animation: pulse 1.5s infinite;
-        }
-        .live-text { color: white; font-size: 12px; font-weight: 900; letter-spacing: 1px; }
+/* ALT BAR */
+.info-bar {
+    position:absolute;
+    bottom:40px;
+    width:100%;
+    height:50px;
+    background:rgba(0,0,0,0.7);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 15px;
+    z-index:999;
+}
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+.live {
+    color:white;
+    background:red;
+    padding:3px 8px;
+    font-size:12px;
+    border-radius:3px;
+}
 
-        /* --- GERİ DÖN BUTONU --- */
-        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 1000; transition: 0.3s; }
-        .back-nav a {
-            color: white; text-decoration: none; background: rgba(0,0,0,0.3);
-            padding: 6px 12px; border-radius: 5px; font-size: 11px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+/* KAYAN YAZI */
+.ticker {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:40px;
+    background:#0b1f44;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+}
 
-        /* Kontroller gizlenince diğerlerini de gizle */
-        .vjs-user-inactive .back-nav, .vjs-user-inactive .live-label { opacity: 0; }
-        .vjs-user-active .back-nav, .vjs-user-active .live-label { opacity: 1; }
+.ticker-text {
+    white-space:nowrap;
+    color:white;
+    padding-left:100%;
+    animation:scroll 20s linear infinite;
+    font-size:13px;
+}
 
-        /* Ortadaki Oynat Butonu */
-        .vjs-big-play-button {
-            background-color: rgba(255, 0, 0, 0.7) !important;
-            border: none !important;
-            border-radius: 50% !important;
-            width: 70px !important; height: 70px !important;
-            line-height: 70px !important; margin-top: -35px !important; margin-left: -35px !important;
-        }
-    </style>
+@keyframes scroll {
+    0% { transform:translateX(0); }
+    100% { transform:translateX(-100%); }
+}
+
+/* SÜRE */
+.time-box {
+    position:absolute;
+    bottom:90px;
+    left:10px;
+    color:white;
+    background:rgba(0,0,0,0.6);
+    padding:4px 8px;
+    font-size:12px;
+    border-radius:3px;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="back-nav"><a href="index.html">⬅ Geri</a></div>
+<div class="top-nav">
+    <a href="index.html" class="back-btn">⬅ Kanallar</a>
+</div>
 
-    <div class="live-label">
-        <div class="dot"></div>
-        <div class="live-text">CANLI</div>
+<div id="player"></div>
+
+<div class="time-box" id="time">00:00</div>
+
+<div class="info-bar">
+    <div id="ch-name">CANLI YAYIN</div>
+    <div class="live">● CANLI</div>
+</div>
+
+<div class="ticker">
+    <div class="ticker-text">
+        Trabzonspor açıklama yaptı • Warriors kazandı • Lebron 26 sayı • Bugün maçlar devam ediyor
     </div>
+</div>
 
-    <video id="vid" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+<script>
+// URL parametreleri
+const params = new URLSearchParams(window.location.search);
+const stream = params.get("stream");
+const name = params.get("name");
 
-    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const streamUrl = params.get('stream');
+// kanal adını yaz
+if(name){
+    document.getElementById("ch-name").innerText = decodeURIComponent(name);
+}
 
-        const player = videojs('vid', {
-            autoplay: true,
-            controls: true,
-            responsive: true,
-            controlBar: {
-                children: [
-                    'playToggle',
-                    'progressControl',
-                    'volumePanel',
-                    'fullscreenToggle',
-                ],
-            }
-        });
+// Clappr başlat
+var player = new Clappr.Player({
+    source: stream,
+    parentId: "#player",
+    autoPlay: true,
+    width: "100%",
+    height: "100%",
+});
 
-        if(streamUrl) {
-            player.src({ src: streamUrl, type: 'application/x-mpegURL' });
-        }
-    </script>
+// süre sayacı
+setInterval(() => {
+    if(player.getCurrentTime) {
+        let t = Math.floor(player.getCurrentTime());
+        let m = String(Math.floor(t/60)).padStart(2,'0');
+        let s = String(t%60).padStart(2,'0');
+        document.getElementById("time").innerText = m + ":" + s;
+    }
+}, 1000);
+</script>
+
 </body>
 </html>
