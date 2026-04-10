@@ -7,77 +7,64 @@
     
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        /* GENEL TASARIM */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         
         .video-js { width: 100vw !important; height: 100vh !important; }
 
-        /* KONTROL ÇUBUĞU - Fotoğraftaki gibi siyah şeffaf bant */
+        /* KONTROL ÇUBUĞU - Siyah Şeffaf Bant */
         .vjs-control-bar {
             background: rgba(0, 0, 0, 0.7) !important;
-            height: 50px !important;
-            align-items: center !important;
+            height: 55px !important;
+            display: flex !important; /* Gizlenmeyi engeller */
+            opacity: 1 !important;
+            visibility: visible !important;
         }
 
-        /* OYNAT BUTONU (Ortadaki) */
+        /* TAM EKRAN BUTONU (BÜYÜTME) - ZORLA GÖSTER */
+        .vjs-fullscreen-control {
+            display: block !important;
+            order: 7 !important; /* En sağa al */
+        }
+        .vjs-fullscreen-control .vjs-icon-placeholder:before {
+            font-size: 1.8em !important;
+            line-height: 55px !important;
+            color: white !important;
+        }
+
+        /* OYNAT BUTONU */
         .vjs-big-play-button {
             background-color: rgba(37, 99, 235, 0.8) !important;
             border: none !important;
             border-radius: 50% !important;
-            width: 80px !important; height: 80px !important;
-            line-height: 80px !important; margin-top: -40px !important; margin-left: -40px !important;
+            width: 70px !important; height: 70px !important;
+            line-height: 70px !important; margin-top: -35px !important; margin-left: -35px !important;
         }
 
-        /* İLERLEME ÇUBUĞU - Fotoğraftaki o ince kırmızı/mavi çizgi */
-        .vjs-play-progress { background-color: #2563eb !important; }
-        .vjs-slider { background-color: rgba(255, 255, 255, 0.2) !important; height: 4px !important; }
-
-        /* SOL ALTTAKİ "CANLI" YAZISI VE KIRMIZI NOKTA */
+        /* CANLI YAZISI VE NOKTA */
         .live-label {
-            position: absolute;
-            bottom: 12px;
-            left: 60px; /* Play butonunun yanına */
-            display: flex;
-            align-items: center;
-            z-index: 10;
-            pointer-events: none;
+            position: absolute; bottom: 15px; left: 65px;
+            display: flex; align-items: center; z-index: 10; pointer-events: none;
         }
         .dot {
-            width: 8px; height: 8px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            margin-right: 6px;
-            box-shadow: 0 0 8px #ff0000;
+            width: 8px; height: 8px; background-color: #ff0000;
+            border-radius: 50%; margin-right: 6px; box-shadow: 0 0 8px #ff0000;
             animation: pulse 1.5s infinite;
         }
-        .live-text {
-            color: white;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px #000;
-        }
+        .live-text { color: white; font-size: 12px; font-weight: 900; letter-spacing: 1px; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* SAĞ ALTTAKİ SES VE TAM EKRAN İKONLARI */
-        .vjs-volume-panel, .vjs-fullscreen-control {
-            color: white !important;
-        }
-
-        /* GERİ DÖN BUTONU */
-        .back-nav {
-            position: absolute; top: 15px; left: 15px; z-index: 100;
-        }
+        /* GERİ DÖN NAV */
+        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 100; }
         .back-nav a {
             color: white; text-decoration: none; background: rgba(0,0,0,0.4);
-            padding: 5px 12px; border-radius: 4px; font-size: 12px;
+            padding: 6px 14px; border-radius: 4px; font-size: 12px;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* MOBİLDE KONTROLLER GİZLENİNCE CANLI YAZISINI DA GİZLE */
-        .vjs-user-inactive .live-label { opacity: 0; transition: 0.3s; }
-        .vjs-user-active .live-label { opacity: 1; transition: 0.3s; }
+        /* KONTROLLER GİZLENİNCE CANLI YAZISINI GİZLE */
+        .vjs-user-inactive .live-label, .vjs-user-inactive .back-nav { opacity: 0; transition: 0.3s; }
+        .vjs-user-active .live-label, .vjs-user-active .back-nav { opacity: 1; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -100,20 +87,12 @@
             const player = videojs('p', {
                 fluid: false,
                 autoplay: true,
-                userActions: { hotkeys: true }
+                controlBar: {
+                    fullscreenToggle: true // Butonu aktif et
+                }
             });
 
             player.src({ src: src, type: 'application/x-mpegURL' });
-            
-            // iPhone/Safari için otomatik oynatma desteği
-            player.ready(function() {
-                var promise = player.play();
-                if (promise !== undefined) {
-                    promise.catch(error => {
-                        // Otomatik oynatma engellendiyse kullanıcı tıklar
-                    });
-                }
-            });
         }
     </script>
 </body>
