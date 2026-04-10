@@ -3,34 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MaçTV - Akıllı Panel</title>
+    <title>MaçTV - Canlı Yayın</title>
+    
     <meta name="referrer" content="no-referrer">
+    
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        :root { --bg-dark: #0f172a; --card-bg: #1e293b; --accent-blue: #3b82f6; --icon-purple: #8b5cf6; }
-        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        header { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); height: 50px; }
-        .logo-box { background: #fff; color: #000; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
-        .site-title { color: var(--accent-blue); font-size: 18px; font-weight: bold; }
-        .main-container { display: flex; height: calc(100vh - 71px); }
-
-        /* Sol Liste */
-        .sidebar { width: 320px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; padding: 15px; background: #111827; }
-        .channels-wrapper { display: flex; flex-direction: column; gap: 8px; }
-        .channel-card { background: var(--card-bg); padding: 12px; border-radius: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
-        .channel-card:hover { border-color: var(--accent-blue); }
-
-        /* Sağ Alan */
-        .content-area { flex: 1; background: #000; position: relative; display: flex; align-items: center; justify-content: center; }
-        #vjs-box, #direct-frame { width: 100%; height: 100%; border: none; }
-        .video-js { width: 100% !important; height: 100% !important; }
-
-        @media (max-width: 850px) {
-            body { overflow-y: auto; }
-            .main-container { flex-direction: column; height: auto; }
-            .sidebar { width: auto; order: 2; }
-            .content-area { width: 100%; height: 250px; position: sticky; top: 0; z-index: 999; order: 1; }
+        :root { 
+            --bg-dark: #0f172a; --card-bg: #1e293b; 
+            --accent-blue: #3b82f6; --live-red: #ef4444; 
+            --icon-purple: #8b5cf6;
         }
+        
+        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        header { display: flex; align-items: center; gap: 12px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-box { background: #fff; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 900; }
+        .site-title { color: var(--accent-blue); font-size: 20px; font-weight: bold; }
+
+        .player-section { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: #000; z-index: 10; }
+        .video-js, #external-player { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
+
+        .list-header { padding: 25px 20px 10px; font-size: 20px; font-weight: bold; }
+        .channels-wrapper { padding: 0 15px 50px; display: flex; flex-direction: column; gap: 10px; }
+        .channel-card {
+            background: var(--card-bg); padding: 14px 18px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.03);
+        }
+        .ch-details { display: flex; align-items: center; gap: 15px; }
+        .play-btn-icon { background: var(--icon-purple); width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -40,72 +41,117 @@
     <div class="site-title">MaçTV Canlı</div>
 </header>
 
-<div class="main-container">
-    <div class="sidebar">
-        <div style="margin-bottom:15px; font-weight:bold; opacity:0.7;">KANALLAR</div>
-        <div class="channels-wrapper" id="list"></div>
+<div class="player-section" id="player-container">
+    <div id="vjs-box" style="width:100%;">
+        <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
     </div>
-
-    <div class="content-area">
-        <div id="vjs-box">
-            <video id="main-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline webkit-playsinline></video>
-        </div>
-        <iframe id="direct-frame" src="about:blank" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="no-referrer" style="display:none;"></iframe>
-    </div>
+    
+    <iframe id="external-player" 
+            src="" 
+            allow="autoplay; fullscreen" 
+            allowfullscreen 
+            webkitallowfullscreen 
+            referrerpolicy="no-referrer"
+            style="display:none; width:100%; aspect-ratio:16/9; border:none;">
+    </iframe>
 </div>
+
+<div class="list-header">Kanallar <span id="count" style="font-size:12px; opacity:0.5;"></span></div>
+<div class="channels-wrapper" id="list"></div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
+    // ARTIK isIframe YAZMANA GEREK YOK, SİSTEM OTOMATİK ANLIYOR
     const channels = [
-        { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8?rel=0&showinfo=0&autoplay=1" },
+        { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8?rel=0&showinfo=0&autoplay=1&enablejsapi=1&r=1&mobile=1&mobile=1" },
+
         { name: "BEIN SPORTS 1 HD", url: "https://l1l1.link/stream?id=91" },
+
         { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
+
         { name: "BEIN SPORTS 3 HD", url: "https://zonalive.click/player/33/153" },
+
         { name: "BEIN SPORTS 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
+
         { name: "BEIN SPORTS 5", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs5.m3u8" },
+
         { name: "BEIN SPORTS MAX 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebsm1.m3u8" },
+
+        { name: "BEIN SPORTS MAX 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebsm2.m3u8" },
+
         { name: "S SPORT", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess1.m3u8" },
+
+        { name: "S SPORT 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess2.m3u8" },
+
+        { name: "Tivibu Spor 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets1.m3u8" },
+
+        { name: "Tivibu Spor 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets2.m3u8" },
+
+        { name: "Tivibu Spor 3", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets3.m3u8" },
+
+        { name: "Tivibu Spor 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets4.m3u8" },
+
+        { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
+
         { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
+
+        { name: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
+
         { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-        { name: "TABİİ SPOR", url: "https://74betorspintv.live/channel?id=ex7" },
-        { name: "TEST", url: "https://lovetier.bz/player/beinsports1tr" }
+
+ { name: "TABİİ SPOR ", url: "https://74betorspintv.live/channel?id=ex7" },
+     
+        { name: "TABİİ SPOR 1 ", url: "https://74betorspintv.live/channel?id=ex1" },
+
+        { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
+
+        { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
+
+        { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
+
+        { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
+
+        { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
+
+        { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
+
+        { name: "TEST", url: "https://lovetier.bz/player/beinsports1tr" },
+
     ];
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const player = videojs('main-player', { fluid: false, html5: { vhs: { overrideNative: !isIOS } } });
+    const player = videojs('main-player', { fluid: true });
+    const listDiv = document.getElementById('list');
     const vjsBox = document.getElementById('vjs-box');
-    const directFrame = document.getElementById('direct-frame');
+    const iframePlayer = document.getElementById('external-player');
 
     function loadChannel(ch) {
-        const isM3U8 = ch.url.toLowerCase().includes('.m3u8');
+        // OTOMATİK TESPİT: Link m3u8 veya mp4 içermiyorsa iframe olarak yükle
+        const isIframeLink = !ch.url.toLowerCase().includes('.m3u8') && !ch.url.toLowerCase().includes('.mp4');
 
-        if (isM3U8) {
-            // OYNATICIYI AÇ (m3u8 modu)
-            directFrame.style.display = 'none';
-            directFrame.src = 'about:blank';
-            vjsBox.style.display = 'block';
-            
-            player.src({ src: ch.url, type: 'application/x-mpegURL' });
-            player.play();
-        } else {
-            // DOĞRUDAN AÇ (PHP/Iframe modu)
+        if (isIframeLink) {
             player.pause();
             vjsBox.style.display = 'none';
-            directFrame.style.display = 'block';
-            directFrame.src = ch.url;
+            iframePlayer.style.display = 'block';
+            iframePlayer.src = ch.url;
+        } else {
+            iframePlayer.style.display = 'none';
+            iframePlayer.src = '';
+            vjsBox.style.display = 'block';
+            player.src({ src: ch.url, type: 'application/x-mpegURL' });
+            player.play();
         }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     channels.forEach(ch => {
-        const div = document.createElement('div');
-        div.className = 'channel-card';
-        div.innerHTML = `<span>▶ ${ch.name}</span>`;
-        div.onclick = () => loadChannel(ch);
-        document.getElementById('list').appendChild(div);
+        const card = document.createElement('div');
+        card.className = 'channel-card';
+        card.innerHTML = `<div class="ch-details"><div class="play-btn-icon">▶</div><span>${ch.name}</span></div>`;
+        card.onclick = () => loadChannel(ch);
+        listDiv.appendChild(card);
     });
 
-    // İlk kanal m3u8 değilse direkt başlasın
-    loadChannel(channels[0]);
+    document.getElementById('count').innerText = `${channels.length} Kanal`;
 </script>
 </body>
 </html>
