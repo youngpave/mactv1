@@ -3,68 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Player</title>
+    <title>Live Player</title>
     
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        .container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; object-fit: contain; }
+        /* GENEL TASARIM */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
+        
+        .video-js { width: 100vw !important; height: 100vh !important; }
 
-        /* Geri Dön Butonu */
-        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 10; }
-        .back-nav a { 
-            color: #fff; text-decoration: none; background: rgba(0,0,0,0.5); 
-            padding: 7px 15px; border-radius: 5px; font-family: sans-serif; 
-            font-size: 12px; border: 1px solid rgba(255,255,255,0.1);
+        /* KONTROL ÇUBUĞU - Fotoğraftaki gibi siyah şeffaf bant */
+        .vjs-control-bar {
+            background: rgba(0, 0, 0, 0.7) !important;
+            height: 50px !important;
+            align-items: center !important;
         }
 
-        /* Plyr Mavi Tema Ayarı */
-        :root { --plyr-color-main: #2563eb; }
+        /* OYNAT BUTONU (Ortadaki) */
+        .vjs-big-play-button {
+            background-color: rgba(37, 99, 235, 0.8) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 80px !important; height: 80px !important;
+            line-height: 80px !important; margin-top: -40px !important; margin-left: -40px !important;
+        }
+
+        /* İLERLEME ÇUBUĞU - Fotoğraftaki o ince kırmızı/mavi çizgi */
+        .vjs-play-progress { background-color: #2563eb !important; }
+        .vjs-slider { background-color: rgba(255, 255, 255, 0.2) !important; height: 4px !important; }
+
+        /* SOL ALTTAKİ "CANLI" YAZISI VE KIRMIZI NOKTA */
+        .live-label {
+            position: absolute;
+            bottom: 12px;
+            left: 60px; /* Play butonunun yanına */
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .dot {
+            width: 8px; height: 8px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 8px #ff0000;
+            animation: pulse 1.5s infinite;
+        }
+        .live-text {
+            color: white;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* SAĞ ALTTAKİ SES VE TAM EKRAN İKONLARI */
+        .vjs-volume-panel, .vjs-fullscreen-control {
+            color: white !important;
+        }
+
+        /* GERİ DÖN BUTONU */
+        .back-nav {
+            position: absolute; top: 15px; left: 15px; z-index: 100;
+        }
+        .back-nav a {
+            color: white; text-decoration: none; background: rgba(0,0,0,0.4);
+            padding: 5px 12px; border-radius: 4px; font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* MOBİLDE KONTROLLER GİZLENİNCE CANLI YAZISINI DA GİZLE */
+        .vjs-user-inactive .live-label { opacity: 0; transition: 0.3s; }
+        .vjs-user-active .live-label { opacity: 1; transition: 0.3s; }
     </style>
 </head>
 <body>
 
     <div class="back-nav"><a href="index.html">⬅ Geri</a></div>
 
-    <div class="container">
-        <video id="player" playsinline controls></video>
+    <div class="live-label">
+        <div class="dot"></div>
+        <div class="live-text">CANLI</div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const video = document.querySelector('#player');
-            const source = new URLSearchParams(window.location.search).get('stream');
-            
-            if (!source) return;
+    <video id="p" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
 
-            // HLS.js yapılandırması (Siyah ekranı çözen asıl kısım)
-            if (Hls.isSupported()) {
-                const hls = new Hls({
-                    maxTodo: 200,
-                    enableWorker: true,
-                    lowLatencyMode: true
-                });
-                hls.loadSource(source);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    const player = new Plyr(video, {
-                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                        settings: ['quality', 'speed']
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const src = params.get('stream');
+
+        if(src) {
+            const player = videojs('p', {
+                fluid: false,
+                autoplay: true,
+                userActions: { hotkeys: true }
+            });
+
+            player.src({ src: src, type: 'application/x-mpegURL' });
+            
+            // iPhone/Safari için otomatik oynatma desteği
+            player.ready(function() {
+                var promise = player.play();
+                if (promise !== undefined) {
+                    promise.catch(error => {
+                        // Otomatik oynatma engellendiyse kullanıcı tıklar
                     });
-                });
-            } 
-            // Safari (iPhone) için direkt destek
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = source;
-                const player = new Plyr(video, {
-                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen']
-                });
-            }
-        });
+                }
+            });
+        }
     </script>
 </body>
 </html>
