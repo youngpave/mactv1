@@ -1,28 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Oynatıcı</title>
+    <title>beIN SPORTS | Canlı Player</title>
+    
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    
     <link href="https://unpkg.com/@videojs/themes@1.0.1/dist/city/index.css" rel="stylesheet">
+
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        .video-js { width: 100vw !important; height: 100vh !important; }
-        .back { position: absolute; top: 20px; left: 20px; z-index: 9999; color: white; text-decoration: none; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 30px; font-family: sans-serif; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
-        .vjs-theme-city .vjs-big-play-button { background-color: #2563eb !important; width: 80px !important; height: 80px !important; border-radius: 50% !important; line-height: 80px !important; margin-top: -40px !important; margin-left: -40px !important; }
+        /* TÜM TASARIMI DEĞİŞTİREN ÖZEL CSS */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        
+        /* Oynatıcıyı Tam Ekran Yap ve Alt Bandı Dışarıda Bırak */
+        .layout { display: flex; flex-direction: column; height: 100%; }
+        .player-wrapper { flex: 1; position: relative; overflow: hidden; background: #000; }
+        .video-js { width: 100% !important; height: 100% !important; }
+
+        /* --- beIN TEMA ÖZELLEŞTİRMELERİ --- */
+        .video-js.vjs-theme-city { color: #fff; }
+        
+        /* Büyük Oynat Butonu (Ortadaki) */
+        .vjs-theme-city .vjs-big-play-button {
+            background-color: rgba(37, 99, 235, 0.7) !important; /* beIN Mavisi */
+            border: none !important; border-radius: 50% !important;
+            width: 70px !important; height: 70px !important;
+            line-height: 70px !important; margin-top: -35px !important; margin-left: -35px !important;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+        }
+        .vjs-theme-city:hover .vjs-big-play-button { background-color: #2563eb !important; transform: scale(1.05); }
+
+        /* Kontrol Çubuğu Tasarımı (beIN Sade) */
+        .vjs-theme-city .vjs-control-bar {
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent) !important;
+            height: 45px !important; padding: 0 5px; opacity: 1 !important;
+        }
+
+        /* İlerleme Çubuğu (beIN Mavisi) */
+        .vjs-theme-city .vjs-play-progress { background-color: #2563eb !important; }
+        .vjs-theme-city .vjs-slider { background-color: rgba(255,255,255,0.1) !important; }
+        
+        /* beIN Sade İkonlar */
+        .vjs-theme-city .vjs-button > .vjs-icon-placeholder:before { font-size: 16px !important; }
+
+        /* Yükleniyor Simgesi */
+        .vjs-loading-spinner { border-color: #2563eb !important; }
+
+        /* --- beIN STİLİ ALT BİLGİ BANDI (INFO BAR) --- */
+        .info-bar {
+            height: 60px; background: #111; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* beIN SPORTS Logosu ve Kanal Adı */
+        .info-left { display: flex; align-items: center; gap: 10px; }
+        .bein-logo { background: #333; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .ch-name { font-size: 14px; color: #aaa; font-weight: bold; text-transform: uppercase; }
+
+        /* CANLI Yazısı (beIN Tarzı Kırmızı) */
+        .info-right { display: flex; align-items: center; gap: 8px; }
+        .live-tag { background: #ef4444; color: white; padding: 3px 8px; border-radius: 3px; font-weight: bold; font-size: 10px; }
+        .bein-full-logo { font-size: 16px; font-weight: 900; color: white; letter-spacing: 0.5px; }
+        .bein-full-logo span { color: #2563eb; }
+
+        /* --- ÜST GERİ DÖN NAV --- */
+        .top-nav {
+            position: absolute; top: 15px; left: 15px; z-index: 1000;
+            transition: opacity 0.3s ease; opacity: 1; /* Kontroller gizlenince bu da gizlenecek */
+        }
+        
+        /* Kontroller gizlendiğinde Nav'ı da gizle */
+        .vjs-user-inactive .top-nav { opacity: 0; }
+
+        .back-btn {
+            color: white; text-decoration: none; background: rgba(255,255,255,0.1);
+            padding: 8px 15px; border-radius: 20px; font-size: 12px;
+            font-weight: 600; backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.03); transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back">⬅ GERİ</a>
-    <video id="vid" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto" playsinline></video>
+
+    <div class="layout">
+        <div class="player-wrapper">
+            <div class="top-nav" id="top-nav-box">
+                <a href="index.html" class="back-btn">⬅ Kanallar</a>
+            </div>
+
+            <video id="p" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto" playsinline></video>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-left">
+                <div class="bein-logo">MT</div>
+                <div class="ch-name" id="display-ch-name">CANLI YAYIN</div>
+            </div>
+            <div class="info-right">
+                <div class="live-tag">● CANLI</div>
+                <div class="bein-full-logo">MAÇ<span>TV</span></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
-        const link = new URLSearchParams(window.location.search).get('stream');
+        // URL'den linki al
+        const params = new URLSearchParams(window.location.search);
+        const link = params.get('stream');
+
         if(link) {
-            const p = videojs('vid');
-            p.src({ src: link, type: 'application/x-mpegURL' });
-            p.play();
+            // Player'ı başlat
+            const player = videojs('p', {
+                fluid: false,
+                html5: { vhs: { overrideNative: true } } // M3U8 için en iyi uyum
+            });
+
+            // Kaynağı yükle
+            player.src({ src: link, type: 'application/x-mpegURL' });
+            
+            // Otomatik oynatmayı dene
+            player.play().catch(e => console.log("Otomatik oynatma engellendi, tıkla ve başlat."));
+
+            // Kanal Adını Al ve Alt Banta Yaz (Eğer linkte varsa)
+            // (index.html'den kanal adını da buraya gönderebiliriz, ama şimdilik varsayılan kalsın)
+            // document.getElementById('display-ch-name').innerText = kanalAdiVarMi;
+
+            // Üst Navigasyonun ve Kontrollerin gizlenmesini sağla
+            player.on('userinactive', function() {
+                document.getElementById('top-nav-box').style.opacity = '0';
+            });
+            player.on('useractive', function() {
+                document.getElementById('top-nav-box').style.opacity = '1';
+            });
         }
     </script>
 </body>
