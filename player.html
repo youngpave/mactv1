@@ -5,50 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Player</title>
     
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@latest/dist/hlsjs-playback.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr-level-selector@latest/dist/level-selector.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        #player { width: 100vw; height: 100vh; }
-        
-        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 1000; }
+        .container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Geri Dön Butonu */
+        .back-nav { position: absolute; top: 15px; left: 15px; z-index: 10; }
         .back-nav a { 
-            color: rgba(255,255,255,0.7); text-decoration: none; 
-            background: rgba(0,0,0,0.5); padding: 6px 14px; 
-            border-radius: 4px; font-family: sans-serif; font-size: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; text-decoration: none; background: rgba(0,0,0,0.5); 
+            padding: 7px 15px; border-radius: 5px; font-family: sans-serif; 
+            font-size: 12px; border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Plyr Mavi Tema Ayarı */
+        :root { --plyr-color-main: #2563eb; }
     </style>
 </head>
 <body>
 
     <div class="back-nav"><a href="index.html">⬅ Geri</a></div>
-    <div id="player"></div>
+
+    <div class="container">
+        <video id="player" playsinline controls></video>
+    </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoSrc = urlParams.get('stream');
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.querySelector('#player');
+            const source = new URLSearchParams(window.location.search).get('stream');
+            
+            if (!source) return;
 
-        if (videoSrc) {
-            var player = new Clappr.Player({
-                source: videoSrc,
-                parentId: "#player",
-                // HlsjsPlayback eklendi, siyah ekranı bu çözer
-                plugins: [HlsjsPlayback, LevelSelector],
-                autoPlay: true,
-                mute: false, // Sesli başlasın
-                width: '100%',
-                height: '100%',
-                hlsjsConfig: {
+            // HLS.js yapılandırması (Siyah ekranı çözen asıl kısım)
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    maxTodo: 200,
                     enableWorker: true,
-                    lowLatencyMode: true,
-                },
-                mimeType: "application/x-mpegURL",
-                mediacontrol: {seekbar: "#2563eb", buttons: "#fff"},
-            });
-        }
+                    lowLatencyMode: true
+                });
+                hls.loadSource(source);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    const player = new Plyr(video, {
+                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+                        settings: ['quality', 'speed']
+                    });
+                });
+            } 
+            // Safari (iPhone) için direkt destek
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = source;
+                const player = new Plyr(video, {
+                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen']
+                });
+            }
+        });
     </script>
 </body>
 </html>
