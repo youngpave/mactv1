@@ -3,48 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAÇTV | Full Panel</title>
+    <title>MAÇTV Test</title>
     <style>
-        :root { --bg: #05070a; --card: #121620; --blue: #2563eb; --gray: #94a3b8; }
-        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        
-        .header { text-align: center; margin-bottom: 20px; position: sticky; top: 0; background: var(--bg); width: 100%; padding: 10px 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .header h1 { font-size: 24px; margin: 0; letter-spacing: 1px; }
-        .header h1 span { color: var(--blue); }
-
-        .container { width: 100%; max-width: 480px; }
-        
-        .ch-card { 
-            background: var(--card); display: flex; align-items: center; 
-            padding: 16px; border-radius: 12px; margin-bottom: 10px; 
-            text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.03);
-            transition: 0.2s; cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .ch-card:active { transform: scale(0.97); background: #1a202e; }
-        
-        .icon { 
-            width: 40px; height: 40px; background: linear-gradient(135deg, var(--blue), #1e40af); 
-            border-radius: 10px; margin-right: 15px; display: flex; 
-            align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
-        }
-
-        .info { flex: 1; }
-        .title { display: block; font-size: 15px; font-weight: 600; }
-        .tag { font-size: 9px; color: var(--gray); text-transform: uppercase; }
-        .play-btn { color: var(--blue); font-weight: bold; }
+        body { background: #05070a; color: white; font-family: sans-serif; padding: 20px; }
+        .ch-card { background: #121620; padding: 15px; margin: 10px 0; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>MAÇ<span>TV</span></h1>
-        <div id="count" style="font-size:10px; opacity:0.5; margin-top:5px;">Yükleniyor...</div>
-    </div>
-
-    <div class="container" id="channel-list"></div>
+    <h1>MAÇTV KANAL LİSTESİ</h1>
+    <div id="channel-list">Yükleniyor...</div>
 
     <script>
         const channels = [
-            { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
-            { name: "BEIN SPORTS 1
+            { name: "BEIN SPORTS 1 HD", url: "https://v2.trendy47.com/event/alanyaspor-vs-trabzonspor-football-1394685" },
+            { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" }
+        ];
+
+        const listDiv = document.getElementById('channel-list');
+        
+        try {
+            listDiv.innerHTML = '';
+            channels.forEach(ch => {
+                const card = document.createElement('div');
+                card.className = 'ch-card';
+                card.innerText = ch.name;
+                card.onclick = () => {
+                    if (ch.url.includes('.m3u8')) {
+                        window.location.href = "player.html?stream=" + encodeURIComponent(ch.url);
+                    } else {
+                        window.location.href = ch.url;
+                    }
+                };
+                listDiv.appendChild(card);
+            });
+        } catch (err) {
+            listDiv.innerText = "Hata oluştu: " + err;
+        }
+    </script>
+</body>
+</html>
