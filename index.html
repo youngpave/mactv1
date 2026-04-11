@@ -18,7 +18,7 @@
             background: var(--card); display: flex; align-items: center; 
             padding: 16px; border-radius: 12px; margin-bottom: 10px; 
             text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.03);
-            transition: 0.2s;
+            transition: 0.2s; cursor: pointer;
         }
         .ch-card:active { transform: scale(0.97); background: #1a202e; }
         
@@ -46,7 +46,7 @@
     <script>
         const channels = [
             { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
-            { name: "BEIN SPORTS 1 HD", url: "buhttps://v2.trendy47.com/event/alanyaspor-vs-trabzonspor-football-1394685" },
+            { name: "BEIN SPORTS 1 HD", url: "https://v2.trendy47.com/event/alanyaspor-vs-trabzonspor-football-1394685" },
             { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
             { name: "BEIN SPORTS 3 HD", url: "https://antenasport.org/beinsport3tr.php" },
             { name: "BEIN SPORTS 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
@@ -63,38 +63,4 @@
             { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
             { name: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
             { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TABİİ SPOR", url: "https://74betorspintv.live/channel?id=ex7" },
-            { name: "TABİİ SPOR 1", url: "https://74betorspintv.live/channel?id=ex1" },
-            { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
-            { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TABİİ SPOR 7", url: "https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master_720p.m3u8" },
-            { name: "TEST", url: "https://dlstreams.top/watch/stream-62.php" }
-        ];
-
-        const listDiv = document.getElementById('channel-list');
-        document.getElementById('count').innerText = channels.length + " KANAL YÜKLENDİ";
-
-        channels.forEach(ch => {
-            const isM3U8 = ch.url.includes('.m3u8') || ch.url.includes('.mp4');
-            const a = document.createElement('a');
-            a.className = 'ch-card';
-            
-            // M3U8 ise player.html'e gönder, değilse direkt linke gönder
-            a.href = isM3U8 ? "player.html?stream=" + encodeURIComponent(ch.url) : ch.url;
-
-            a.innerHTML = `
-                <div class="icon">${ch.name.substring(0,1)}</div>
-                <div class="info">
-                    <span class="title">${ch.name}</span>
-                    <span class="tag">${isM3U8 ? 'HD Oynatıcı' : 'Direkt Yayın'}</span>
-                </div>
-                <div class="play-btn">▶</div>
-            `;
-            listDiv.appendChild(a);
-        });
-    </script>
-</body>
-</html>
+            { name: "TABİİ SPOR", url: "https://74betorspintv.live/channel?id=ex7"
