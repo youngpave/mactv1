@@ -19,6 +19,7 @@
             padding: 16px; border-radius: 12px; margin-bottom: 10px; 
             text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.03);
             transition: 0.2s; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         .ch-card:active { transform: scale(0.97); background: #1a202e; }
         
@@ -38,7 +39,7 @@
 
     <div class="header">
         <h1>MAÇ<span>TV</span></h1>
-        <div id="count" style="font-size:10px; opacity:0.5; margin-top:5px;"></div>
+        <div id="count" style="font-size:10px; opacity:0.5; margin-top:5px;">Yükleniyor...</div>
     </div>
 
     <div class="container" id="channel-list"></div>
@@ -46,21 +47,4 @@
     <script>
         const channels = [
             { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
-            { name: "BEIN SPORTS 1 HD", url: "https://v2.trendy47.com/event/alanyaspor-vs-trabzonspor-football-1394685" },
-            { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
-            { name: "BEIN SPORTS 3 HD", url: "https://antenasport.org/beinsport3tr.php" },
-            { name: "BEIN SPORTS 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
-            { name: "BEIN SPORTS 5", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs5.m3u8" },
-            { name: "BEIN SPORTS MAX 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebsm1.m3u8" },
-            { name: "BEIN SPORTS MAX 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebsm2.m3u8" },
-            { name: "S SPORT", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess1.m3u8" },
-            { name: "S SPORT 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess2.m3u8" },
-            { name: "Tivibu Spor 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets1.m3u8" },
-            { name: "Tivibu Spor 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets2.m3u8" },
-            { name: "Tivibu Spor 3", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets3.m3u8" },
-            { name: "Tivibu Spor 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets4.m3u8" },
-            { name: "TV8", url: "https://andro.0638527.xyz/checklist/androstreamlivedetv8.m3u8" },
-            { name: "TV8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-            { name: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TABİİ SPOR", url: "https://74betorspintv.live/channel?id=ex7"
+            { name: "BEIN SPORTS 1
