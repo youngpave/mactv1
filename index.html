@@ -18,15 +18,8 @@
             z-index: 1000; border-bottom: none; display: flex; justify-content: center;
         }
         
-        #fs-toggle-btn {
-            position: absolute; top: 15px; right: 15px; z-index: 1001;
-            background: rgba(37, 99, 235, 0.9); color: white; border: none;
-            padding: 10px 18px; border-radius: 30px; font-size: 11px; font-weight: bold;
-            cursor: pointer; opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            display: none;
-        }
-        #player-container.active-ui #fs-toggle-btn { opacity: 1; pointer-events: auto; }
+        /* Tam ekran butonu stili etkisiz hale getirildi */
+        #fs-toggle-btn { display: none !important; }
 
         @media (max-width: 1023px) { #player-container { aspect-ratio: 16 / 9; } }
         @media (min-width: 1024px) { #player-container { height: 400px; } }
@@ -41,16 +34,8 @@
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 10px); } }
         @media (min-width: 1024px) { .container { padding-top: 410px; max-width: 800px; margin: 0 auto; } }
 
-        #fixed-fs-panel {
-            background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05); display: none;
-            justify-content: center; align-items: center;
-        }
-        .fixed-fs-btn {
-            background: var(--blue); color: white; border: none; width: 100%; padding: 12px;
-            border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        /* Sabit tam ekran paneli gizlendi */
+        #fixed-fs-panel { display: none !important; }
 
         .ch-card { 
             background: var(--card); display: flex; align-items: center; padding: 14px; 
@@ -68,17 +53,11 @@
 <body onclick="handleGlobalClick()">
 
     <div id="player-container">
-        <button id="fs-toggle-btn" onclick="toggleFullScreen(event)">⛶ TAM EKRAN</button>
         <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline webkit-playsinline></video>
         <iframe id="external-frame" allowfullscreen></iframe>
     </div>
 
     <div class="container">
-        <div id="fixed-fs-panel">
-            <button class="fixed-fs-btn" onclick="toggleFullScreen(event)">
-                <span>⛶</span> (TAM EKRAN MODU)
-            </button>
-        </div>
         <div id="channel-list"></div>
     </div>
 
@@ -88,8 +67,7 @@
         const iframe = document.getElementById('external-frame');
         const videoElement = document.getElementById('my-video');
         const playerContainer = document.getElementById('player-container');
-        const fsBtn = document.getElementById('fs-toggle-btn');
-        const fixedPanel = document.getElementById('fixed-fs-panel');
+        
         let uiTimeout;
 
         function handleGlobalClick(customDuration = 3000) {
@@ -102,30 +80,18 @@
 
         const channels = [
             { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
-
             { name: "BEIN SPORTS 1 HD", url: "https://embedsports.top/embed/echo/galatasaray-vs-kocaelispor-football-1394689/2#player=clappr" },
-
-  { name: "BEIN SPORTS 1 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-1" },
-
-{ name: "BEIN SPORTS 1 Yedek HD", url: "https://zonalive.click/player/33/151" },
-
-
+            { name: "BEIN SPORTS 1 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-1" },
+            { name: "BEIN SPORTS 1 Yedek HD", url: "https://zonalive.click/player/33/151" },
             { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
-
-
-    { name: "BEIN SPORTS 2 HD Yedek ", url: "https://selcuksports179.top/matches?id=bein-sports-2" }
-,
+            { name: "BEIN SPORTS 2 HD Yedek ", url: "https://selcuksports179.top/matches?id=bein-sports-2" },
             { name: "BEIN SPORTS 3 HD", url: "https://antenasport.org/beinsport3tr.php" },
-
-    { name: "BEIN SPORTS 3 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-3" },
-
+            { name: "BEIN SPORTS 3 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-3" },
             { name: "BEIN SPORTS 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
             { name: "BEIN SPORTS 5", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs5.m3u8" },
             { name: "BEIN SPORTS MAX 1", url: "https://selcuksports179.top/matches?id=bein-sports-max-1" },
             { name: "BEIN SPORTS MAX 2", url: "https://selcuksports179.top/matches?id=bein-sports-max-2" },
-
- { name: "SKY SPORTS", url: "https://streamcrichd.com/update/skyf1.php" },
-
+            { name: "SKY SPORTS", url: "https://streamcrichd.com/update/skyf1.php" },
             { name: "TİVİBU SPOR 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets1.m3u8" },
             { name: "TİVİBU SPOR 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets2.m3u8" },
             { name: "TİVİBU SPOR 3", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets3.m3u8" },
@@ -144,15 +110,9 @@
 
         function playChannel(url, channelName) {
             const isVideo = url.toLowerCase().includes('.m3u8');
-            
-            // Bein Sports 1 ve Yedek istisnası
             const isSpecialChannel = channelName.includes("BEIN SPORTS 1");
 
             if (isVideo || isSpecialChannel) {
-                // M3U8 kanalı veya BEIN 1 ise butonları gizle
-                fsBtn.style.display = 'none';
-                fixedPanel.style.display = 'none';
-                
                 if (isVideo) {
                     iframe.style.display = 'none';
                     videoElement.style.display = 'block';
@@ -160,17 +120,12 @@
                     videoPlayer.load();
                     videoPlayer.play().catch(e => console.log(e));
                 } else {
-                    // BEIN 1 PHP linki olsa da buton gösterme
                     videoPlayer.pause();
                     videoElement.style.display = 'none';
                     iframe.style.display = 'block';
                     iframe.src = url;
                 }
             } else {
-                // Diğer PHP kanallarında göster
-                fsBtn.style.display = 'block';
-                fixedPanel.style.display = 'flex';
-                
                 videoPlayer.pause();
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
@@ -195,8 +150,9 @@
             listDiv.appendChild(card);
         });
 
+        // Fonksiyonlar yerinde bırakıldı ancak butonlar silindiği için tetiklenmeyecekler.
         function toggleFullScreen(event) {
-            event.stopPropagation(); 
+            if(event) event.stopPropagation(); 
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                 if (playerContainer.requestFullscreen) playerContainer.requestFullscreen();
                 else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen();
