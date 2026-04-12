@@ -18,14 +18,13 @@
             z-index: 1000; border-bottom: none; display: flex; justify-content: center;
         }
         
-        /* Tam Ekran Butonu - Başta tamamen gizli */
         #fs-toggle-btn {
             position: absolute; top: 15px; right: 15px; z-index: 1001;
             background: rgba(37, 99, 235, 0.9); color: white; border: none;
             padding: 10px 18px; border-radius: 30px; font-size: 11px; font-weight: bold;
             cursor: pointer; opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            display: none; /* JS ile PHP kanallarında 'flex' yapılacak */
+            display: none;
         }
         #player-container.active-ui #fs-toggle-btn { opacity: 1; pointer-events: auto; }
 
@@ -42,10 +41,9 @@
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 10px); } }
         @media (min-width: 1024px) { .container { padding-top: 410px; max-width: 800px; margin: 0 auto; } }
 
-        /* Sabit Alt Panel (Sadece PHP kanallarında görünür) */
         #fixed-fs-panel {
             background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05); display: none; /* Başta gizli */
+            border: 1px solid rgba(255, 255, 255, 0.05); display: none;
             justify-content: center; align-items: center;
         }
         .fixed-fs-btn {
@@ -107,12 +105,9 @@
             { name: "BEIN SPORTS 1 HD", url: "https://abiggame.top/best/15.php" },
             { name: "BEIN SPORTS 1 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-1" },
             { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
-
-{ name: "BEIN SPORTS 2 HD Yedek ", url: "https://selcuksports179.top/matches?id=bein-sports-2" },
-
+            { name: "BEIN SPORTS 2 HD Yedek ", url: "https://selcuksports179.top/matches?id=bein-sports-2" },
             { name: "BEIN SPORTS 3 HD", url: "https://antenasport.org/beinsport3tr.php" },
-
-{ name: "BEIN SPORTS 3 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-3" },
+            { name: "BEIN SPORTS 3 Yedek HD", url: "https://selcuksports179.top/matches?id=bein-sports-3" },
             { name: "BEIN SPORTS 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
             { name: "BEIN SPORTS 5", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs5.m3u8" },
             { name: "BEIN SPORTS MAX 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebsm1.m3u8" },
@@ -133,21 +128,32 @@
             { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" }
         ];
 
-        function playChannel(url) {
+        function playChannel(url, channelName) {
             const isVideo = url.toLowerCase().includes('.m3u8');
             
-            if (isVideo) {
-                // M3U8 kanalıysa butonları gizle
+            // Bein Sports 1 ve Yedek istisnası
+            const isSpecialChannel = channelName.includes("BEIN SPORTS 1");
+
+            if (isVideo || isSpecialChannel) {
+                // M3U8 kanalı veya BEIN 1 ise butonları gizle
                 fsBtn.style.display = 'none';
                 fixedPanel.style.display = 'none';
                 
-                iframe.style.display = 'none';
-                videoElement.style.display = 'block';
-                videoPlayer.src({ src: url, type: 'application/x-mpegURL' });
-                videoPlayer.load();
-                videoPlayer.play().catch(e => console.log(e));
+                if (isVideo) {
+                    iframe.style.display = 'none';
+                    videoElement.style.display = 'block';
+                    videoPlayer.src({ src: url, type: 'application/x-mpegURL' });
+                    videoPlayer.load();
+                    videoPlayer.play().catch(e => console.log(e));
+                } else {
+                    // BEIN 1 PHP linki olsa da buton gösterme
+                    videoPlayer.pause();
+                    videoElement.style.display = 'none';
+                    iframe.style.display = 'block';
+                    iframe.src = url;
+                }
             } else {
-                // PHP / IFRAME kanalıysa butonları göster
+                // Diğer PHP kanallarında göster
                 fsBtn.style.display = 'block';
                 fixedPanel.style.display = 'flex';
                 
@@ -155,11 +161,25 @@
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
                 iframe.src = url;
-                
-                // İlk açılışta buton 30sn görünsün
                 handleGlobalClick(30000);
             }
         }
+
+        const listDiv = document.getElementById('channel-list');
+        channels.forEach(ch => {
+            const card = document.createElement('div');
+            card.className = 'ch-card';
+            card.onclick = () => playChannel(ch.url, ch.name);
+            card.innerHTML = `
+                <div class="icon">${ch.name.substring(0,2)}</div>
+                <div class="info">
+                    <span class="title">${ch.name}</span>
+                    <span class="tag">MAÇTV VIP</span>
+                </div>
+                <div style="color:var(--blue)">▶</div>
+            `;
+            listDiv.appendChild(card);
+        });
 
         function toggleFullScreen(event) {
             event.stopPropagation(); 
@@ -171,22 +191,6 @@
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
-
-        const listDiv = document.getElementById('channel-list');
-        channels.forEach(ch => {
-            const card = document.createElement('div');
-            card.className = 'ch-card';
-            card.onclick = () => playChannel(ch.url);
-            card.innerHTML = `
-                <div class="icon">${ch.name.substring(0,2)}</div>
-                <div class="info">
-                    <span class="title">${ch.name}</span>
-                    <span class="tag">MAÇTV VIP</span>
-                </div>
-                <div style="color:var(--blue)">▶</div>
-            `;
-            listDiv.appendChild(card);
-        });
     </script>
 </body>
 </html>
