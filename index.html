@@ -12,20 +12,43 @@
             margin: 0; padding: 0; height: 100%; overflow: hidden;
             padding-top: env(safe-area-inset-top);
         }
+        
+        /* Oynatıcı Kapsayıcısı */
         #player-container { 
             width: 100%; background: #000; position: fixed; top: env(safe-area-inset-top); 
             z-index: 1000; border-bottom: 2px solid var(--blue); display: flex; justify-content: center;
         }
+        
+        /* Tam Ekran Butonu */
+        #fs-toggle {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1001;
+            background: rgba(37, 99, 235, 0.8);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
         @media (max-width: 1023px) { #player-container { aspect-ratio: 16 / 9; } }
         @media (min-width: 1024px) { #player-container { height: 400px; } }
+        
         .video-js { width: 100% !important; height: 100% !important; }
         iframe { width: 100%; height: 100%; border: none; display: none; background: #000; }
+        
         .container { 
             height: 100vh; overflow-y: auto; padding: 15px; box-sizing: border-box;
             -webkit-overflow-scrolling: touch;
         }
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 20px); } }
         @media (min-width: 1024px) { .container { padding-top: 420px; max-width: 800px; margin: 0 auto; } }
+        
         .ch-card { 
             background: var(--card); display: flex; align-items: center; padding: 14px; 
             border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
@@ -42,6 +65,8 @@
 <body>
 
     <div id="player-container">
+        <button id="fs-toggle" onclick="toggleFullScreen()">TAM EKRAN</button>
+        
         <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline webkit-playsinline></video>
         <iframe id="external-frame" allowfullscreen></iframe>
     </div>
@@ -53,6 +78,7 @@
         const videoPlayer = videojs('my-video');
         const iframe = document.getElementById('external-frame');
         const videoElement = document.getElementById('my-video');
+        const playerContainer = document.getElementById('player-container');
 
         const channels = [
             { name: "UFC", url: "https://trendy47.dad/event/live-event_ufc-327-prochazka-vs-ulberg-live-stream" },
@@ -77,20 +103,35 @@
         ];
 
         function playChannel(url) {
-            // iOS'ta .m3u8 kontrolü çok kritiktir
             const isVideo = url.toLowerCase().includes('.m3u8');
-            
             if (isVideo) {
                 iframe.style.display = 'none';
                 videoElement.style.display = 'block';
                 videoPlayer.src({ src: url, type: 'application/x-mpegURL' });
                 videoPlayer.load();
-                videoPlayer.play().catch(e => console.log("Oynatma başlatılamadı: ", e));
+                videoPlayer.play().catch(e => console.log("Oynatma hatası:", e));
             } else {
                 videoPlayer.pause();
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
                 iframe.src = url;
+            }
+        }
+
+        // Tam Ekran Fonksiyonu
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (playerContainer.requestFullscreen) {
+                    playerContainer.requestFullscreen();
+                } else if (playerContainer.webkitRequestFullscreen) {
+                    playerContainer.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
         }
 
