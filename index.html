@@ -13,13 +13,13 @@
             padding-top: env(safe-area-inset-top);
         }
         
-        /* Oynatıcı Alanı */
+        /* Oynatıcı Alanı - Mavi çizgi kaldırıldı */
         #player-container { 
             width: 100%; background: #000; position: fixed; top: env(safe-area-inset-top); 
-            z-index: 1000; border-bottom: 2px solid var(--blue); display: flex; justify-content: center;
+            z-index: 1000; border-bottom: none; display: flex; justify-content: center;
         }
         
-        /* Video İçindeki Akıllı Buton (Dokununca Gelen) */
+        /* Video İçindeki Akıllı Buton */
         #fs-toggle-btn {
             position: absolute; top: 15px; right: 15px; z-index: 1001;
             background: rgba(37, 99, 235, 0.9); color: white; border: none;
@@ -35,7 +35,6 @@
         .video-js { width: 100% !important; height: 100% !important; }
         iframe { width: 100%; height: 100%; border: none; display: none; background: #000; }
         
-        /* Ana İçerik Kapsayıcı */
         .container { 
             height: 100vh; overflow-y: auto; padding: 15px; box-sizing: border-box;
             -webkit-overflow-scrolling: touch;
@@ -43,13 +42,13 @@
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 10px); } }
         @media (min-width: 1024px) { .container { padding-top: 410px; max-width: 800px; margin: 0 auto; } }
 
-        /* SABİT PANEL (Player ile Liste Arasındaki Kısım) */
+        /* Sabit Panel (Player ile Liste Arasındaki Kısım) */
         .fixed-controls {
             background: var(--card);
             padding: 12px;
             border-radius: 12px;
             margin-bottom: 15px;
-            border: 1px solid rgba(37, 99, 235, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -94,10 +93,9 @@
     <div class="container">
         <div class="fixed-controls">
             <button class="fixed-fs-btn" onclick="toggleFullScreen(event)">
-                <span>⛶</span>  (TAM EKRAN)
+                <span>⛶</span> EKRANI KAPLA (TAM EKRAN)
             </button>
         </div>
-
         <div id="channel-list"></div>
     </div>
 
@@ -117,7 +115,6 @@
             }, customDuration);
         }
 
-        // İlk açılışta video içindeki buton 30sn kalsın
         window.onload = () => { handleGlobalClick(30000); };
 
         const channels = [
