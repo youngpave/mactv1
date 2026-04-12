@@ -89,7 +89,6 @@
         const playerContainer = document.getElementById('player-container');
         let uiTimeout;
 
-        // Kontrolleri göster/gizle
         function handleGlobalClick(customDuration = 3000) {
             playerContainer.classList.add('active-ui');
             clearTimeout(uiTimeout);
@@ -98,13 +97,13 @@
             }, customDuration);
         }
 
-        // İLK AÇILIŞ: 15 saniye göster
+        // İLK AÇILIŞ: 30 saniye göster
         window.onload = () => {
-            handleGlobalClick(15000); 
+            handleGlobalClick(30000); 
         };
 
         const channels = [
-            
+            { name: "UFC", url: "https://trendy47.dad/event/live-event_ufc-327-prochazka-vs-ulberg-live-stream" },
             { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
             { name: "BEIN SPORTS 1 HD", url: "https://l1l1.link/stream?id=91" },
             { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
