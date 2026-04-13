@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -20,7 +19,7 @@
         }
         
         @media (max-width: 1023px) { #player-container { aspect-ratio: 16 / 9; } }
-        @media (min-width: 1024px) { #player-container { height: 420px; } }
+        @media (min-width: 1024px) { #player-container { height: 400px; } }
         
         .video-js { width: 100% !important; height: 100% !important; }
         iframe { width: 100%; height: 100%; border: none; display: none; background: #000; }
@@ -30,27 +29,25 @@
             -webkit-overflow-scrolling: touch;
         }
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 15px); } }
-        @media (min-width: 1024px) { .container { padding-top: 435px; max-width: 800px; margin: 0 auto; } }
+        @media (min-width: 1024px) { .container { padding-top: 415px; max-width: 800px; margin: 0 auto; } }
 
         .ch-card { 
             background: var(--card); display: flex; align-items: center; padding: 14px; 
             border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
         }
-        .ch-card:active { transform: scale(0.98); }
         .icon { 
             width: 40px; height: 40px; background: linear-gradient(135deg, var(--blue), #1e40af); 
-            border-radius: 8px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px;
+            border-radius: 8px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
         .info { flex: 1; }
         .title { display: block; font-size: 15px; font-weight: 600; }
-        .tag { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag { font-size: 10px; color: var(--gray); text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div id="player-container">
-        <video id="my-video" class="video-js vjs-big-play-centered vjs-16-9" controls preload="auto" playsinline webkit-playsinline></video>
+        <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
         <iframe id="external-frame" allowfullscreen></iframe>
     </div>
 
@@ -60,45 +57,33 @@
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
+        // Video.js'i Python Proxy'sine uyumlu şekilde başlatıyoruz
         const videoPlayer = videojs('my-video', {
-            fluid: true,
-            html5: { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
+            html5: { vhs: { overrideNative: true } }
         });
 
         const iframe = document.getElementById('external-frame');
         const videoElement = document.getElementById('my-video');
 
-        // KANAL LİSTESİ
         const channels = [
-            { name: "IPTV BEIN SPORTS 1", url: "http://extrtrp2707.xyz:8080/live/lutfikarol/tp89Zz8agL/35762.m3u8" },
+            { name: "IPTV BEIN SPORTS 1", url: "http://anadolutv.shop:8080/live/9MeKCDLG5s/ZrGS6R8FZ5/334642.m3u8" },
             { name: "TRT SPOR HD", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TV 8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-            { name: "S SPORT HD", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess1.m3u8" }
+            { name: "TV 8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" }
         ];
 
         function playChannel(url) {
             const isVideo = url.toLowerCase().includes('.m3u8');
             
             if (isVideo) {
-                // Tarayıcının indirmesini engellemek için proxy üzerinden m3u8 olarak çağırıyoruz
-                const proxyUrl = "proxy.php?url=" + encodeURIComponent(url);
+                // SENİN PYTHON PROXY ADRESİN: /proxy/m3u
+                // Eğer sunucun farklı bir porttaysa localhost:5000 kısmını ona göre güncelle
+                const proxyUrl = "/proxy/m3u?url=" + encodeURIComponent(url);
                 
                 iframe.style.display = 'none';
                 videoElement.style.display = 'block';
-                
-                // Kaynağı ve tipi tanımlıyoruz
-                videoPlayer.src({ 
-                    src: proxyUrl, 
-                    type: 'application/x-mpegURL' 
-                });
-                
-                videoPlayer.ready(function() {
-                    this.play().catch(function(error) {
-                        console.log("Oynatma otomatik başlatılamadı:", error);
-                    });
-                });
+                videoPlayer.src({ src: proxyUrl, type: 'application/x-mpegURL' });
+                videoPlayer.play();
             } else {
-                // Iframe kaynakları (PHP'siz)
                 videoPlayer.pause();
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
@@ -115,9 +100,9 @@
                 <div class="icon">${ch.name.substring(0,2)}</div>
                 <div class="info">
                     <span class="title">${ch.name}</span>
-                    <span class="tag">MAÇTV VIP • CANLI</span>
+                    <span class="tag">MAÇTV VIP • 1080P</span>
                 </div>
-                <div style="color:var(--blue); font-size: 20px;">▶</div>
+                <div style="color:var(--blue)">▶</div>
             `;
             listDiv.appendChild(card);
         });
