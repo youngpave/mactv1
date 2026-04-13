@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -20,13 +21,27 @@
         @media (min-width: 1024px) { #player-container { height: 400px; } }
         .video-js { width: 100% !important; height: 100% !important; }
         iframe { width: 100%; height: 100%; border: none; display: none; background: #000; }
+        
         .container { 
             height: 100vh; overflow-y: auto; padding: 15px; box-sizing: border-box;
             -webkit-overflow-scrolling: touch;
         }
         @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 10px); } }
         @media (min-width: 1024px) { .container { padding-top: 410px; max-width: 800px; margin: 0 auto; } }
-        .section-title { font-size: 12px; color: var(--blue); font-weight: 700; margin: 20px 0 10px 5px; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid var(--blue); padding-left: 10px; }
+
+        /* YAN YANA BUTONLAR */
+        .tab-wrapper { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { 
+            flex: 1; padding: 12px; border-radius: 10px; background: var(--card); 
+            border: 1px solid rgba(255,255,255,0.1); color: var(--gray);
+            font-weight: 700; font-size: 12px; cursor: pointer; text-align: center;
+            transition: 0.3s;
+        }
+        .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+        .list-section { display: none; }
+        .list-section.active { display: block; }
+
         .ch-card { 
             background: var(--card); display: flex; align-items: center; padding: 14px; 
             border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
@@ -48,11 +63,13 @@
     </div>
 
     <div class="container">
-        <div class="section-title">VIP SPOR KANALLARI</div>
-        <div id="vip-list"></div>
-        
-        <div class="section-title">IPTV ÖZEL BÖLÜM (Yönlendirme)</div>
-        <div id="iptv-list"></div>
+        <div class="tab-wrapper">
+            <div class="tab-btn active" onclick="switchTab('vip')">VIP KANALLAR</div>
+            <div class="tab-btn" onclick="switchTab('iptv')">IPTV (YÖNLENDİRME)</div>
+        </div>
+
+        <div id="vip-section" class="list-section active"></div>
+        <div id="iptv-section" class="list-section"></div>
     </div>
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
@@ -62,52 +79,42 @@
         const videoElement = document.getElementById('my-video');
 
         const vipChannels = [
-            // beIN Grubu
-            { name: "BEIN SPORTS HABER", url: "https://www.canlitv.diy/player/iframe.php?url=https://www.youtube.com/embed/i7UpPgxfZZ8" },
             { name: "BEIN SPORTS 1 HD", url: "https://zonalive.click/player/33/151" },
             { name: "BEIN SPORTS 1 YEDEK", url: "https://selcuksports179.top/matches?id=bein-sports-1" },
             { name: "BEIN SPORTS 2 HD", url: "https://zonalive.click/player/33/152" },
             { name: "BEIN SPORTS 3 HD", url: "https://antenasport.org/beinsport3tr.php" },
             { name: "BEIN SPORTS 4 HD", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs4.m3u8" },
             { name: "BEIN SPORTS 5 HD", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedebs5.m3u8" },
-            { name: "BEIN SPORTS MAX 1", url: "https://selcuksports179.top/matches?id=bein-sports-max-1" },
-            { name: "BEIN SPORTS MAX 2", url: "https://selcuksports179.top/matches?id=bein-sports-max-2" },
-            
-            // Tivibu & S Sport
             { name: "TİVİBU SPOR 1", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets1.m3u8" },
-            { name: "TİVİBU SPOR 2", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets2.m3u8" },
-            { name: "TİVİBU SPOR 3", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets3.m3u8" },
-            { name: "TİVİBU SPOR 4", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedets4.m3u8" },
             { name: "S SPORT 1 HD", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess1.m3u8" },
-            { name: "S SPORT 2 HD", url: "https://andro.evrenosoglu53.lat/checklist/androstreamlivedess2.m3u8" },
-
-            // Tabii & TRT & TV8.5
             { name: "TABİİ SPOR 1", url: "https://74betorspintv.live/channel?id=ex1" },
-            { name: "TABİİ SPOR 2", url: "https://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TABİİ SPOR 3", url: "https://mr4vl7nq2sh9tw5xp1zk3gj8b.medya.trt.com.tr/master_1440p.m3u8" },
-            { name: "TRT SPOR", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TV8.5 HD", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" },
-
-            // DAZN & Sky
             { name: "DAZN 1", url: "https://la14hd.com/vivo/canales.php?stream=dazn1" },
-            { name: "SKY SPORTS F1", url: "https://streamcrichd.com/update/skyf1.php" }
+            { name: "TV8.5 HD", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" }
         ];
 
-        // IPTV BÖLÜMÜ - BURAYA EKLEYECEĞİN KANALLAR DİREKT YÖNLENDİRME YAPAR
+        // BURASI BOŞ, KENDİN DOLDURABİLİRSİN
         const iptvChannels = [
-
-  { name: 
-" IPTV MAX 1", url: "https://selcuksports179.top/matches?id=bein-sports-max-1" },
-
-            // Örnek: { name: "IPTV KANALIM", url: "https://link-buraya.com" },
+             // { name: "ÖRNEK KANAL", url: "https://yönlenecek-link.com" }
         ];
+
+        function switchTab(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.list-section').forEach(sec => sec.classList.remove('active'));
+            
+            if(type === 'vip') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('vip-section').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('iptv-section').classList.add('active');
+            }
+        }
 
         function playChannel(url, isIPTV) {
             if (isIPTV) {
                 window.open(url, '_blank');
                 return;
             }
-
             const isVideo = url.toLowerCase().includes('.m3u8');
             if (isVideo) {
                 iframe.style.display = 'none';
@@ -123,7 +130,7 @@
             }
         }
 
-        function renderList(list, containerId, tagText, isIPTV) {
+        function renderList(list, containerId, isIPTV) {
             const container = document.getElementById(containerId);
             list.forEach(ch => {
                 const card = document.createElement('div');
@@ -133,7 +140,7 @@
                     <div class="icon">${ch.name.substring(0,2)}</div>
                     <div class="info">
                         <span class="title">${ch.name}</span>
-                        <span class="tag">${tagText}</span>
+                        <span class="tag">${isIPTV ? 'YÖNLENDİRME' : 'VIP KANAL'}</span>
                     </div>
                     <div style="color:var(--blue)">${isIPTV ? '🔗' : '▶'}</div>
                 `;
@@ -141,8 +148,8 @@
             });
         }
 
-        renderList(vipChannels, 'vip-list', 'MAÇTV VIP', false);
-        renderList(iptvChannels, 'iptv-list', 'DIŞ BAĞLANTI', true);
+        renderList(vipChannels, 'vip-section', false);
+        renderList(iptvChannels, 'iptv-section', true);
     </script>
 </body>
 </html>
