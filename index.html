@@ -2,110 +2,61 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MAÇTV | VIP Panel</title>
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        :root { --bg: #05070a; --card: #121620; --blue: #2563eb; --gray: #94a3b8; }
-        html, body { 
-            background: var(--bg); color: white; font-family: -apple-system, sans-serif; 
-            margin: 0; padding: 0; height: 100%; overflow: hidden;
-            padding-top: env(safe-area-inset-top);
-        }
-        
-        #player-container { 
-            width: 100%; background: #000; position: fixed; top: env(safe-area-inset-top); 
-            z-index: 1000; display: flex; justify-content: center;
-        }
-        
-        @media (max-width: 1023px) { #player-container { aspect-ratio: 16 / 9; } }
-        @media (min-width: 1024px) { #player-container { height: 400px; } }
-        
+        :root { --bg: #05070a; --card: #121620; --blue: #2563eb; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
+        #player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: sticky; top: 0; z-index: 100; }
         .video-js { width: 100% !important; height: 100% !important; }
-        iframe { width: 100%; height: 100%; border: none; display: none; background: #000; }
-        
-        .container { 
-            height: 100vh; overflow-y: auto; padding: 15px; box-sizing: border-box;
-            -webkit-overflow-scrolling: touch;
-        }
-        @media (max-width: 1023px) { .container { padding-top: calc(56.25vw + 15px); } }
-        @media (min-width: 1024px) { .container { padding-top: 415px; max-width: 800px; margin: 0 auto; } }
-
+        .container { padding: 15px; }
         .ch-card { 
-            background: var(--card); display: flex; align-items: center; padding: 14px; 
-            border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+            background: var(--card); padding: 15px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; align-items: center; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .icon { 
-            width: 40px; height: 40px; background: linear-gradient(135deg, var(--blue), #1e40af); 
-            border-radius: 8px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold;
-        }
-        .info { flex: 1; }
-        .title { display: block; font-size: 15px; font-weight: 600; }
-        .tag { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+        .ch-icon { width: 40px; height: 40px; background: var(--blue); border-radius: 8px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="player-container">
-        <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
-        <iframe id="external-frame" allowfullscreen></iframe>
-    </div>
+<div id="player-wrapper">
+    <video id="tv-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+</div>
 
-    <div class="container">
-        <div id="channel-list"></div>
-    </div>
+<div class="container" id="list"></div>
 
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script>
-        // Video.js'i Python Proxy'sine uyumlu şekilde başlatıyoruz
-        const videoPlayer = videojs('my-video', {
-            html5: { vhs: { overrideNative: true } }
-        });
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script>
+    const player = videojs('tv-player', {
+        html5: { vhs: { overrideNative: true } }
+    });
 
-        const iframe = document.getElementById('external-frame');
-        const videoElement = document.getElementById('my-video');
+    const channels = [
+        { name: "IPTV BEIN SPORTS 1", url: "http://anadolutv.shop:8080/live/9MeKCDLG5s/ZrGS6R8FZ5/334642.m3u8" },
+        { name: "TRT SPOR HD", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
+        { name: "TV 8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" }
+    ];
 
-        const channels = [
-            { name: "IPTV BEIN SPORTS 1", url: "http://extrtrp2707.xyz:8080/live/lutfikarol/tp89Zz8agL/35762.m3u8" },
-            { name: "TRT SPOR HD", url: "https://tv-trtspor1.medya.trt.com.tr/master_1080.m3u8" },
-            { name: "TV 8.5", url: "https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8" }
-        ];
+    function play(url) {
+        // Docker'da 7860 portunu kullandığın için yolu buna göre çekiyoruz
+        // Eğer index.html ve Python aynı sunucudaysa sadece path yeterli
+        const proxyUrl = "/proxy/m3u?url=" + encodeURIComponent(url);
+        
+        player.src({ src: proxyUrl, type: 'application/x-mpegURL' });
+        player.load();
+        player.play();
+    }
 
-        function playChannel(url) {
-            const isVideo = url.toLowerCase().includes('.m3u8');
-            
-            if (isVideo) {
-                // SENİN PYTHON PROXY ADRESİN: /proxy/m3u
-                // Eğer sunucun farklı bir porttaysa localhost:5000 kısmını ona göre güncelle
-                const proxyUrl = "/proxy/m3u?url=" + encodeURIComponent(url);
-                
-                iframe.style.display = 'none';
-                videoElement.style.display = 'block';
-                videoPlayer.src({ src: proxyUrl, type: 'application/x-mpegURL' });
-                videoPlayer.play();
-            } else {
-                videoPlayer.pause();
-                videoElement.style.display = 'none';
-                iframe.style.display = 'block';
-                iframe.src = url;
-            }
-        }
-
-        const listDiv = document.getElementById('channel-list');
-        channels.forEach(ch => {
-            const card = document.createElement('div');
-            card.className = 'ch-card';
-            card.onclick = () => playChannel(ch.url);
-            card.innerHTML = `
-                <div class="icon">${ch.name.substring(0,2)}</div>
-                <div class="info">
-                    <span class="title">${ch.name}</span>
-                    <span class="tag">MAÇTV VIP • 1080P</span>
-                </div>
-                <div style="color:var(--blue)">▶</div>
-            `;
-            listDiv.appendChild(card);
-        });
-    </script>
+    const listDiv = document.getElementById('list');
+    channels.forEach(ch => {
+        listDiv.innerHTML += `
+            <div class="ch-card" onclick="play('${ch.url}')">
+                <div class="ch-icon">${ch.name.substring(0,2)}</div>
+                <div><b>${ch.name}</b><br><small style="color:gray">CANLI YAYIN</small></div>
+            </div>`;
+    });
+</script>
 </body>
 </html>
