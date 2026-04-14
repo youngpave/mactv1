@@ -108,7 +108,7 @@
             { name: "TABİİ SPOR 4", url: "https://sh7tq2nw5mr1vl9xp4zk3gj8k.medya.trt.com.tr/master_1440p.m3u8" },
             { name: "TABİİ SPOR 5", url: "https://z3mmimwz148csv0vaxtphqspf.medya.trt.com.tr/master_1080p.m3u8" },
             { name: "TABİİ SPOR 6", url: "https://nw5mr1vl9xp4zk2sh7tq3gj6b.medya.trt.com.tr/master_1440p.m3u8" },
-
+            
             { name: "IPTV BEIN SPORTS 1", url: "http://anadolutv.shop:8080/live/9MeKCDLG5s/ZrGS6R8FZ5/6099.m3u8" },
         ];
 
@@ -117,13 +117,19 @@
             const isVideo = url.toLowerCase().includes('.m3u8');
 
             if (isIptvMode) {
-                // İsmi IPTV ile başlıyorsa direkt Google/Iframe modu
+                // İsmi IPTV ile başlıyorsa
                 videoPlayer.pause();
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
-                iframe.src = url;
+                
+                // .m3u8 ise siyah ekranı önlemek için web player üzerinden aç
+                if (isVideo) {
+                    iframe.src = "https://hlsjs.video-dev.org/demo/?src=" + encodeURIComponent(url);
+                } else {
+                    iframe.src = url;
+                }
             } else if (isVideo) {
-                // Normal M3U8 kanalıysa Player modu
+                // Normal .m3u8 modu
                 iframe.style.display = 'none';
                 iframe.src = '';
                 videoElement.style.display = 'block';
@@ -131,7 +137,7 @@
                 videoPlayer.load();
                 videoPlayer.play().catch(e => console.log(e));
             } else {
-                // Link M3U8 değilse ve IPTV yazmıyorsa da Iframe modunda aç (Hata önlemek için)
+                // Diğer durumlar (PHP vb.)
                 videoPlayer.pause();
                 videoElement.style.display = 'none';
                 iframe.style.display = 'block';
